@@ -31,14 +31,15 @@
       bottom: 80px;
       right: 20px;
       z-index: 10000;
-      width: 300px;
-      background: white;
+      width: 320px;
+      background: #f9f9f9;
       border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-      padding: 15px;
-      font-family: Arial, sans-serif;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       font-size: 14px;
+      transition: all 0.3s ease-in-out;
     }
 
     #accessibility-widget.open {
@@ -46,24 +47,25 @@
     }
 
     #accessibility-widget h2 {
-      font-size: 18px;
-      margin-bottom: 10px;
+      font-size: 20px;
+      margin-bottom: 15px;
       color: #333;
     }
 
     #accessibility-widget .button-group {
       display: flex;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
 
     #accessibility-widget button {
       flex: 1;
-      padding: 8px;
+      padding: 10px;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
+      transition: background-color 0.3s ease-in-out, opacity 0.3s ease-in-out;
     }
 
     #accessibility-widget button:hover {
@@ -75,6 +77,7 @@
     #invert-colors { background-color: #28a745; color: white; }
     #high-contrast { background-color: #ffc107; color: white; }
     #check-images { background-color: #dc3545; color: white; }
+    #highlight-links-button { background-color: #17a2b8; color: white; }
     #hide-images { background-color: #6c757d; color: white; }
 
     /* Accessibility Body Classes */
@@ -96,6 +99,14 @@
       background-color: black;
       color: white;
       padding: 1rem;
+    }
+
+    /* Developed By Section */
+    #accessibility-widget .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #666;
     }
   `;
   document.head.appendChild(style);
@@ -119,7 +130,8 @@
     <button id="high-contrast">High Contrast</button>
     <button id="check-images">Check Images</button>
     <button id="highlight-links-button">Highlight Links</button>
-    <button id="hide-images">Hide Images</button> <!-- New button -->
+    <button id="hide-images">Hide Images</button>
+    <div class="footer">Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a></div>
   `;
   document.body.appendChild(widget);
 
