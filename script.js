@@ -54,12 +54,13 @@
 
     #accessibility-widget .button-group {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 15px;
     }
 
     #accessibility-widget button {
-      flex: 1;
+      flex: 1 1 calc(50% - 10px);
       padding: 10px;
       border: none;
       border-radius: 8px;
@@ -125,12 +126,12 @@
     <div class="button-group">
       <button id="increase-text">A+</button>
       <button id="decrease-text">A-</button>
+      <button id="invert-colors">Invert Colors</button>
+      <button id="high-contrast">High Contrast</button>
+      <button id="check-images">Check Images</button>
+      <button id="highlight-links-button">Highlight Links</button>
+      <button id="hide-images">Hide Images</button>
     </div>
-    <button id="invert-colors">Invert Colors</button>
-    <button id="high-contrast">High Contrast</button>
-    <button id="check-images">Check Images</button>
-    <button id="highlight-links-button">Highlight Links</button>
-    <button id="hide-images">Hide Images</button>
     <div class="footer">Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a></div>
   `;
   document.body.appendChild(widget);
