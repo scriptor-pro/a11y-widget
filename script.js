@@ -75,6 +75,7 @@
     #invert-colors { background-color: #28a745; color: white; }
     #high-contrast { background-color: #ffc107; color: white; }
     #check-images { background-color: #dc3545; color: white; }
+    #hide-images { background-color: #6c757d; color: white; }
 
     /* Accessibility Body Classes */
     body.inverted-colors {
@@ -85,6 +86,16 @@
     body.high-contrast {
       background-color: #000;
       color: #fff;
+    }
+    body.hide-images img {
+      display: none;
+    }
+
+    /* Highlight Links */
+    .highlight-links a {
+      background-color: black;
+      color: white;
+      padding: 1rem;
     }
   `;
   document.head.appendChild(style);
@@ -107,6 +118,8 @@
     <button id="invert-colors">Invert Colors</button>
     <button id="high-contrast">High Contrast</button>
     <button id="check-images">Check Images</button>
+    <button id="highlight-links-button">Highlight Links</button>
+    <button id="hide-images">Hide Images</button> <!-- New button -->
   `;
   document.body.appendChild(widget);
 
@@ -172,4 +185,13 @@
   });
 
   document.getElementById("check-images").addEventListener("click", validateImages);
+
+  const highlightLinksButton = document.getElementById("highlight-links-button");
+  highlightLinksButton.addEventListener("click", () => {
+    document.body.classList.toggle("highlight-links");
+  });
+
+  document.getElementById("hide-images").addEventListener("click", () => {
+    toggleClassOnBody("hide-images");
+  });
 })();
