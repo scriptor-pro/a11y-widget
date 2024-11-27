@@ -131,6 +131,8 @@
       <button id="check-images">Check Images</button>
       <button id="highlight-links-button">Highlight Links</button>
       <button id="hide-images">Hide Images</button>
+      <button id="increase-saturation">Increase Saturation</button>
+      <button id="decrease-saturation">Decrease Saturation</button>
     </div>
     <div class="footer">Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a></div>
   `;
@@ -176,6 +178,20 @@
     }
   };
 
+  function adjustSaturation(action) {
+    const body = document.body;
+    let currentSaturation = parseFloat(getComputedStyle(body).getPropertyValue('--saturation') || 1);
+
+    if (action === "increase") {
+      currentSaturation += 0.1;
+    } else if (action === "decrease") {
+      currentSaturation -= 0.1;
+    }
+
+    body.style.setProperty('--saturation', currentSaturation);
+    body.style.filter = `saturate(${currentSaturation})`;
+  }
+
   // Event Listeners
   toggleButton.addEventListener("click", () => {
     widget.classList.toggle("open");
@@ -206,5 +222,13 @@
 
   document.getElementById("hide-images").addEventListener("click", () => {
     toggleClassOnBody("hide-images");
+  });
+
+  document.getElementById("increase-saturation").addEventListener("click", () => {
+    adjustSaturation("increase");
+  });
+
+  document.getElementById("decrease-saturation").addEventListener("click", () => {
+    adjustSaturation("decrease");
   });
 })();
