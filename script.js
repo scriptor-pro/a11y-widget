@@ -80,6 +80,7 @@
     #check-images { background-color: #dc3545; color: white; }
     #highlight-links-button { background-color: #17a2b8; color: white; }
     #hide-images { background-color: #6c757d; color: white; }
+    #line-height { background-color: #007acc; color: white; }
 
     /* Accessibility Body Classes */
     body.inverted-colors {
@@ -137,6 +138,7 @@
       <button id="hide-images">Hide Images</button>
       <button id="increase-saturation">Increase Saturation</button>
       <button id="decrease-saturation">Decrease Saturation</button>
+      <button id="line-height">Line Height</button>
     </div>
     <div class="footer">Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a></div>
   `;
@@ -205,6 +207,55 @@
     }
   }
 
+
+  function adjustLineHeight(increment = 0) {
+    let isLineHeightEnabled = parseInt(localStorage.getItem('isLineHeightEnabled'));
+    if (!increment) {
+      isLineHeightEnabled = !isLineHeightEnabled;
+      increment = 1;
+    }
+    if (!isLineHeightEnabled) {
+      document
+        .querySelectorAll("*")
+        .forEach((el) => {
+          if (!el.classList.contains('material-icons')) {
+            let orgLineHeight = el.getAttribute('data-asw-orgLineHeight');
+
+            if (!orgLineHeight) {
+              orgLineHeight = el.style['line-height'];
+              el.setAttribute('data-asw-orgLineHeight', orgLineHeight);
+              if (!orgLineHeight) {
+                orgLineHeight = 1.1;
+              }
+              orgLineHeight = parseFloat(orgLineHeight);
+              let newLineHeight = orgLineHeight + increment;
+              el.style['line-height'] = newLineHeight;
+            }
+          }
+        });
+
+      localStorage.setItem('isLineHeightEnabled', 1);
+    } else {
+      document
+        .querySelectorAll("*")
+        .forEach((el) => {
+          if (!el.classList.contains('material-icons')) {
+            let orgLineHeight = el.getAttribute('data-asw-orgLineHeight');
+            if (orgLineHeight) {
+              el.style['line-height'] = orgLineHeight;
+              el.removeAttribute('data-asw-orgLineHeight');
+            }
+            else {
+              el.style.removeProperty('line-height');
+            }
+
+          }
+        });
+
+      localStorage.setItem('isLineHeightEnabled', 0);
+    }
+  }
+
   // Event Listeners
   toggleButton.addEventListener("click", toggleWidgetVisibility);
 
@@ -221,6 +272,11 @@
   document.getElementById("decrease-text").addEventListener("click", () => {
     adjustTextSize("decrease");
   });
+
+  document.getElementById("line-height").addEventListener("click", () => {
+    adjustLineHeight(1)
+  });
+
 
   document.getElementById("invert-colors").addEventListener("click", () => {
     toggleClassOnBody("inverted-colors");
