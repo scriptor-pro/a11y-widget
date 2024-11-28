@@ -113,9 +113,12 @@
   document.head.appendChild(style);
 
   // Create the toggle button
-  const toggleButton = document.createElement("button");
+  const toggleButton = document.createElement("span");
   toggleButton.id = "accessibility-toggle";
-  toggleButton.innerText = "A";
+  toggleButton.className = "material-symbols-outlined";
+  toggleButton.innerText = "blind";
+  toggleButton.style.fontSize = "32px"
+  toggleButton.style.cursor = "default";
   document.body.appendChild(toggleButton);
 
   // Create the widget
@@ -123,6 +126,7 @@
   widget.id = "accessibility-widget";
   widget.innerHTML = `
     <h2>Accessibility Options</h2>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=blind" />
     <div class="button-group">
       <button id="increase-text">A+</button>
       <button id="decrease-text">A-</button>
@@ -192,9 +196,22 @@
     body.style.filter = `saturate(${currentSaturation})`;
   }
 
+  // Function to toggle widget visibility
+  function toggleWidgetVisibility() {
+    if (widget.style.display === 'none' || widget.style.display === '') {
+      widget.style.display = 'block';
+    } else {
+      widget.style.display = 'none';
+    }
+  }
+
   // Event Listeners
-  toggleButton.addEventListener("click", () => {
-    widget.classList.toggle("open");
+  toggleButton.addEventListener("click", toggleWidgetVisibility);
+
+  document.addEventListener('click', function (event) {
+    if (!widget.contains(event.target) && !toggleButton.contains(event.target)) {
+      widget.style.display = 'none';
+    }
   });
 
   document.getElementById("increase-text").addEventListener("click", () => {
