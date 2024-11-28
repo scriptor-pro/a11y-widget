@@ -74,19 +74,21 @@
     }
 
     #increase-text { background-color: #007acc; color: white; }
-    #decrease-text { background-color: #007acc; color: white; }
-    #invert-colors { background-color: #28a745; color: white; }
-    #high-contrast { background-color: #ffc107; color: white; }
-    #check-images { background-color: #dc3545; color: white; }
-    #highlight-links-button { background-color: #17a2b8; color: white; }
-    #hide-images { background-color: #6c757d; color: white; }
-    #line-height { background-color: #007acc; color: white; }
+    #decrease-text { background-color: #28a745; color: white; }
+    #invert-colors { background-color: #ffc107; color: white; }
+    #high-contrast { background-color: #dc3545; color: white; }
+    #check-images { background-color: #17a2b8; color: white; }
+    #highlight-links-button { background-color: #6c757d; color: white; }
+    #hide-images { background-color: #343a40; color: white; }
+    #increase-saturation { background-color: #e83e8c; color: white; }
+    #decrease-saturation { background-color: #fd7e14; color: white; }
+    #line-height { background-color: #6610f2; color: white; }
+    #dyslexic-font { background-color: #20c997; color: white; }
+    #letter-spacing { background-color: #6f42c1; color: white; }
 
     /* Accessibility Body Classes */
     body.inverted-colors {
       filter: invert(1);
-      background-color: #000;
-      color: #fff;
     }
     body.high-contrast {
       background-color: #000;
@@ -110,16 +112,20 @@
       font-size: 12px;
       color: #666;
     }
+
+    @font-face {
+      font-family: 'OpenDyslexic3';
+      src: url("https://website-widgets.pages.dev/fonts/OpenDyslexic3-Regular.woff") format("woff"), url("https://website-widgets.pages.dev/fonts/OpenDyslexic3-Regular.ttf") format("truetype");
+    }
   `;
   document.head.appendChild(style);
 
   // Create the toggle button
-  const toggleButton = document.createElement("span");
+  const toggleButton = document.createElement("div");
   toggleButton.id = "accessibility-toggle";
-  toggleButton.className = "material-symbols-outlined";
-  toggleButton.innerText = "blind";
-  toggleButton.style.fontSize = "32px"
+  toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"  fill="#e8eaed"><path d="M480-720q-33 0-56.5-23.5T400-800q0-33 23.5-56.5T480-880q33 0 56.5 23.5T560-800q0 33-23.5 56.5T480-720ZM360-80v-520H120v-80h720v80H600v520h-80v-240h-80v240h-80Z"/></svg>`
   toggleButton.style.cursor = "default";
+  toggleButton.style.padding = "4px"
   document.body.appendChild(toggleButton);
 
   // Create the widget
@@ -127,7 +133,6 @@
   widget.id = "accessibility-widget";
   widget.innerHTML = `
     <h2>Accessibility Options</h2>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=blind" />
     <div class="button-group">
       <button id="increase-text">A+</button>
       <button id="decrease-text">A-</button>
@@ -139,6 +144,8 @@
       <button id="increase-saturation">Increase Saturation</button>
       <button id="decrease-saturation">Decrease Saturation</button>
       <button id="line-height">Line Height</button>
+      <button id="dyslexic-font">Dyslexic Font</button>
+      <button id="letter-spacing">Letter Spacing</button>
     </div>
     <div class="footer">Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a></div>
   `;
@@ -207,7 +214,89 @@
     }
   }
 
+  function enableDyslexicFont(load = false) {
+    let isDyslexicFontEnabled = parseInt(localStorage.getItem('isDyslexicFontEnabled'));
+    if (load) {
+      isDyslexicFontEnabled = !isDyslexicFontEnabled;
+    }
+    if (!isDyslexicFontEnabled) {
+      document
+        .querySelectorAll("*")
+        .forEach((el) => {
+          if (!el.classList.contains('material-icons')) {
+            orgFontFamily = el.style['font-family'];
+            el.setAttribute('data-asw-orgFontFamily', orgFontFamily);
+            el.style['font-family'] = 'OpenDyslexic3';
+          }
+        });
 
+      localStorage.setItem('isDyslexicFontEnabled', 1);
+    } else {
+      document
+        .querySelectorAll("*")
+        .forEach((el) => {
+          if (!el.classList.contains('material-icons')) {
+            orgFontFamily = el.getAttribute('data-asw-orgFontFamily');
+            if (orgFontFamily) {
+              el.style['font-family'] = orgFontFamily;
+              el.removeAttribute('data-asw-orgFontFamily');
+            }
+            else {
+              el.style.removeProperty('font-family');
+            }
+          }
+        });
+
+      localStorage.setItem('isDyslexicFontEnabled', 0);
+    }
+  }
+  function adjustLetterSpacing(increment = 0) {
+    let isLetterSpacingEnabled = parseInt(localStorage.getItem('isLetterSpacingEnabled'));
+    if (!increment) {
+      isLetterSpacingEnabled = !isLetterSpacingEnabled;
+      increment = 0.1;
+    }
+    if (!isLetterSpacingEnabled) {
+      document
+        .querySelectorAll("*")
+        .forEach((el) => {
+          if (!el.classList.contains('material-icons')) {
+
+            let orgLetterSpacing = el.getAttribute('data-asw-orgLetterSpacing');
+
+            if (!orgLetterSpacing) {
+              orgLetterSpacing = el.style['letter-spacing'];
+              el.setAttribute('data-asw-orgLetterSpacing', orgLetterSpacing);
+              if (!(orgLetterSpacing)) {
+                orgLetterSpacing = 0;
+              }
+              orgLetterSpacing = parseFloat(orgLetterSpacing);
+              let newLetterSpacing = orgLetterSpacing + increment;
+              el.style['letter-spacing'] = newLetterSpacing + 'em';
+            }
+          }
+        });
+
+      localStorage.setItem('isLetterSpacingEnabled', 1);
+    } else {
+      document
+        .querySelectorAll("*")
+        .forEach((el) => {
+          if (!el.classList.contains('material-icons')) {
+            let orgLetterSpacing = el.getAttribute('data-asw-orgLetterSpacing');
+            if (orgLetterSpacing) {
+              el.style['letter-spacing'] = orgLetterSpacing;
+              el.removeAttribute('data-asw-orgLetterSpacing');
+            }
+            else {
+              el.style.removeProperty('letter-spacing');
+            }
+          }
+        });
+
+      localStorage.setItem('isLetterSpacingEnabled', 0);
+    }
+  }
   function adjustLineHeight(increment = 0) {
     let isLineHeightEnabled = parseInt(localStorage.getItem('isLineHeightEnabled'));
     if (!increment) {
@@ -256,6 +345,55 @@
     }
   }
 
+  function adjustContrast(load = false) {
+    let isContrastEnabled = parseInt(localStorage.getItem('isContrastEnabled'));
+    if (load) {
+      isContrastEnabled = !isContrastEnabled;
+    }
+    if (!isContrastEnabled) {
+      document
+        .querySelectorAll("*")
+        .forEach((el) => {
+          let orgColor = el.getAttribute('data-asw-orgContrastColor');
+          let orgBgColor = el.getAttribute('data-asw-orgContrastBgColor');
+
+          if (!orgColor) {
+            orgColor = el.style.color;
+            el.setAttribute('data-asw-orgContrastColor', orgColor);
+          }
+          if (!orgBgColor) {
+            orgBgColor = window.getComputedStyle(el).getPropertyValue('background-color');
+            el.setAttribute('data-asw-orgContrastBgColor', orgBgColor);
+          }
+
+          el.style["color"] = '#ffff00';
+          el.style["background-color"] = '#0000ff';
+        });
+
+      localStorage.setItem('isContrastEnabled', 1);
+    } else {
+      document
+        .querySelectorAll("*")
+        .forEach((el) => {
+          let orgContrastColor = el.getAttribute('data-asw-orgContrastColor');
+          let orgContrastBgColor = el.getAttribute('data-asw-orgContrastBgColor');
+          if (orgContrastColor) {
+            el.style.color = orgContrastColor;
+          } else {
+            el.style.removeProperty('color');
+          }
+          if (orgContrastBgColor) {
+            el.style.backgroundColor = orgContrastBgColor;
+          } else {
+            el.style.removeProperty('background-color');
+          }
+          el.removeAttribute('data-asw-orgContrastColor');
+          el.removeAttribute('data-asw-orgContrastBgColor');
+        });
+      localStorage.setItem('isContrastEnabled', 0);
+    }
+  }
+
   // Event Listeners
   toggleButton.addEventListener("click", toggleWidgetVisibility);
 
@@ -277,13 +415,16 @@
     adjustLineHeight(1)
   });
 
+  document.getElementById("dyslexic-font").addEventListener("click", () => {
+    enableDyslexicFont()
+  });
 
   document.getElementById("invert-colors").addEventListener("click", () => {
     toggleClassOnBody("inverted-colors");
   });
 
   document.getElementById("high-contrast").addEventListener("click", () => {
-    toggleClassOnBody("high-contrast");
+    adjustContrast()
   });
 
   document.getElementById("check-images").addEventListener("click", validateImages);
@@ -303,5 +444,9 @@
 
   document.getElementById("decrease-saturation").addEventListener("click", () => {
     adjustSaturation("decrease");
+  });
+
+  document.getElementById("letter-spacing").addEventListener("click", () => {
+    adjustLetterSpacing(0.1)
   });
 })();
