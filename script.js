@@ -118,6 +118,7 @@
       src: url("https://website-widgets.pages.dev/fonts/OpenDyslexic3-Regular.woff") format("woff"), url("https://website-widgets.pages.dev/fonts/OpenDyslexic3-Regular.ttf") format("truetype");
     }
   `;
+
   document.head.appendChild(style);
 
   // Create the toggle button
@@ -139,7 +140,7 @@
       <button id="invert-colors">Invert Colors</button>
       <button id="high-contrast">High Contrast</button>
       <button id="check-images">Check Images</button>
-      <button id="highlight-links-button">Highlight Links</button>
+      <button id="highlight-links">Highlight Links</button>
       <button id="hide-images">Hide Images</button>
       <button id="increase-saturation">Increase Saturation</button>
       <button id="decrease-saturation">Decrease Saturation</button>
@@ -152,12 +153,6 @@
   document.body.appendChild(widget);
 
   // Utility Functions
-  let textSize = 1;
-  const adjustTextSize = (direction) => {
-    textSize += direction === "increase" ? 0.1 : -0.1;
-    document.body.style.fontSize = `${textSize}em`;
-  };
-
   const toggleClassOnBody = (className) => {
     document.body.classList.toggle(className);
   };
@@ -394,6 +389,51 @@
     }
   }
 
+  function adjustFontSize(multiply = 0) {
+    const storedPercentage = parseFloat(localStorage.getItem('fontPercentage'));
+    if (multiply) {
+      if (storedPercentage) {
+        const newPercentage = storedPercentage + multiply;
+        localStorage.setItem('fontPercentage', newPercentage);
+      } else {
+        const newPercentage = 1 + multiply;
+        localStorage.setItem('fontPercentage', newPercentage);
+      }
+    }
+    document
+      .querySelectorAll("*")
+      .forEach((el) => {
+        if (!el.classList.contains('material-icons')) {
+          let orgFontSize = parseFloat(el.getAttribute('data-asw-orgFontSize'));
+
+          if (!orgFontSize) {
+            orgFontSize = parseFloat(window.getComputedStyle(el).getPropertyValue('font-size'));
+            el.setAttribute('data-asw-orgFontSize', orgFontSize);
+          }
+          let adjustedFontSize = orgFontSize * (parseFloat(localStorage.getItem('fontPercentage')) || 1);
+          el.style['font-size'] = adjustedFontSize + 'px';
+        }
+      });
+  }
+
+
+  function enableHighlightLinks(load = false) {
+    let isHighlightLinks = parseInt(localStorage.getItem('isHighlightLinks'));
+    if (load) {
+      isHighlightLinks = !isHighlightLinks;
+    }
+    if (!isHighlightLinks) {
+      document.body.classList.add('highlight-links');
+
+      localStorage.setItem('isHighlightLinks', 1);
+    } else {
+      document.body.classList.remove('highlight-links');
+
+      localStorage.setItem('isHighlightLinks', 0);
+    }
+  }
+
+
   // Event Listeners
   toggleButton.addEventListener("click", toggleWidgetVisibility);
 
@@ -404,11 +444,11 @@
   });
 
   document.getElementById("increase-text").addEventListener("click", () => {
-    adjustTextSize("increase");
+    adjustFontSize(0.1);
   });
 
   document.getElementById("decrease-text").addEventListener("click", () => {
-    adjustTextSize("decrease");
+    adjustFontSize(-0.1);
   });
 
   document.getElementById("line-height").addEventListener("click", () => {
@@ -429,9 +469,8 @@
 
   document.getElementById("check-images").addEventListener("click", validateImages);
 
-  const highlightLinksButton = document.getElementById("highlight-links-button");
-  highlightLinksButton.addEventListener("click", () => {
-    document.body.classList.toggle("highlight-links");
+  document.getElementById("highlight-links").addEventListener("click", () => {
+    enableHighlightLinks()
   });
 
   document.getElementById("hide-images").addEventListener("click", () => {
@@ -449,4 +488,15 @@
   document.getElementById("letter-spacing").addEventListener("click", () => {
     adjustLetterSpacing(0.1)
   });
+
+  adjustFontSize();
+  adjustLetterSpacing();
+  enableDyslexicFont(true);
+  // enableBigCursor(true);
+  enableHighlightLinks(true);
+  // enableHighlightHeadings(true);
+  adjustLineHeight();
+  // adjustFontWeight();
+  adjustContrast(true);
+
 })();
