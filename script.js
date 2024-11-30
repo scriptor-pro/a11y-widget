@@ -85,6 +85,7 @@
     #line-height { background-color: #6610f2; color: white; }
     #dyslexic-font { background-color: #20c997; color: white; }
     #letter-spacing { background-color: #6f42c1; color: white; }
+    #voice-over { background-color: #ff5722; color: white; }
 
     /* Accessibility Body Classes */
     body.inverted-colors {
@@ -147,6 +148,7 @@
       <button id="line-height">Line Height</button>
       <button id="dyslexic-font">Dyslexic Font</button>
       <button id="letter-spacing">Letter Spacing</button>
+      <button id="voice-over">Voice Over</button>
     </div>
     <div class="footer">Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a></div>
   `;
@@ -340,6 +342,22 @@
     }
   }
 
+  function readText(text) {
+    // Check if the browser supports speech synthesis
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text); // Create a new speech synthesis instance
+
+      utterance.pitch = 1; // Range is 0 to 2 (default is 1)
+      utterance.rate = 1; // Range is 0.1 to 10 (default is 1)
+      utterance.volume = 1; // Range is 0 to 1 (default is 1)
+
+      // Speak the text
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert('Sorry, your browser does not support speech synthesis.');
+    }
+  }
+
   function adjustContrast(load = false) {
     let isContrastEnabled = parseInt(localStorage.getItem('isContrastEnabled'));
     if (load) {
@@ -487,6 +505,19 @@
 
   document.getElementById("letter-spacing").addEventListener("click", () => {
     adjustLetterSpacing(0.1)
+  });
+
+  document.getElementById("voice-over").addEventListener("click", () => {
+    const elements = document.body.querySelectorAll("*:not(#accessibility-widget):not(#accessibility-widget *)");
+    let text = "";
+    elements.forEach((el) => {
+      if (el.tagName.toLowerCase() === "img" && el.alt) {
+        text += ` ${el.alt}`;
+      } else if (el.innerText) {
+        text += ` ${el.innerText}`;
+      }
+    });
+    readText(text);
   });
 
   adjustFontSize();
