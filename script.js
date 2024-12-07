@@ -78,7 +78,7 @@
     #invert-colors { background-color: #ffc107; color: white; }
     #high-contrast { background-color: #dc3545; color: white; }
     #check-images { background-color: #17a2b8; color: white; }
-    #highlight-links-button { background-color: #6c757d; color: white; }
+    #highlight-links { background-color: #6c757d; color: white; }
     #hide-images { background-color: #343a40; color: white; }
     #increase-saturation { background-color: #e83e8c; color: white; }
     #decrease-saturation { background-color: #fd7e14; color: white; }
