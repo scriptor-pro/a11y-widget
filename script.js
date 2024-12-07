@@ -507,18 +507,44 @@
     adjustLetterSpacing(0.1)
   });
 
-  document.getElementById("voice-over").addEventListener("click", () => {
-    const elements = document.body.querySelectorAll("*:not(#accessibility-widget):not(#accessibility-widget *)");
-    let text = "";
-    elements.forEach((el) => {
-      if (el.tagName.toLowerCase() === "img" && el.alt) {
-        text += ` ${el.alt}`;
-      } else if (el.innerText) {
-        text += ` ${el.innerText}`;
+
+  function extractUniqueDocumentText() {
+    const uniqueTexts = new Set();
+    const elements = document.body.querySelectorAll(
+      "*:not(#accessibility-widget):not(#accessibility-widget *)"
+    );
+
+    // Process each element
+    elements.forEach(element => {
+      if (element.tagName.toLowerCase() === "img") {
+        // Handle images - add alt text if available
+        const altText = element.getAttribute("alt");
+        if (altText && altText.trim()) {
+          uniqueTexts.add(`[Image: ${altText.trim()}]`);
+        } else {
+          uniqueTexts.add("[Image without description]");
+        }
+      } else {
+        // Handle text elements
+        const text = element.innerText;
+        if (text && text.trim() &&
+          !Array.from(uniqueTexts).some(t => t.includes(text.trim()))) {
+          uniqueTexts.add(text.trim());
+        }
       }
     });
+
+    // Convert Set to string
+    return Array.from(uniqueTexts)
+      .filter(text => text.length > 0)
+      .join('\n');
+  }
+
+  document.getElementById("voice-over").addEventListener("click", () => {
+    const text = extractUniqueDocumentText();
     readText(text);
   });
+
 
   adjustFontSize();
   adjustLetterSpacing();
