@@ -557,3 +557,40 @@
   adjustContrast(true);
 
 })();
+
+(async function handleImagesWithoutAlt() {
+  try {
+    const images = document.querySelectorAll('img:not([alt]), img[alt=""]');
+
+    for (const img of images) {
+      try {
+        // Fetch image as blob
+        const imageResponse = await fetch(img.src);
+        const imageBlob = await imageResponse.blob();
+
+        // Create FormData and append image
+        const formData = new FormData();
+        formData.append('image', imageBlob, 'image.jpg');
+        formData.append('api-key', 'AIzaSyCjMSQv0ptwwlKXqohTeXHzA3Zjf_hjQSU')
+        // Send POST request with FormData
+        const response = await fetch('http://127.0.0.1:5000/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Get alt text from response and set it
+        const altText = await response.json();
+        img.setAttribute('alt', altText['alt']);
+
+      } catch (error) {
+        console.error(`Error processing image ${img.src}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error('Error handling images:', error);
+  }
+})();
