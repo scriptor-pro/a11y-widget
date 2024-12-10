@@ -86,6 +86,7 @@
     #dyslexic-font { background-color: #20c997; color: white; }
     #letter-spacing { background-color: #6f42c1; color: white; }
     #voice-over { background-color: #ff5722; color: white; }
+    #big-cursor { background-color: #007bff; color: white; }
 
     /* Accessibility Body Classes */
     body.inverted-colors {
@@ -149,6 +150,7 @@
       <button id="dyslexic-font">Dyslexic Font</button>
       <button id="letter-spacing">Letter Spacing</button>
       <button id="voice-over">Voice Over</button>
+      <button id="big-cursor">Big Cursor</button>
     </div>
     <div class="footer">Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a></div>
   `;
@@ -540,16 +542,43 @@
       .join('\n');
   }
 
+  function enableBigCursor(load = false) {
+    let isBigCursorEnabled = parseInt(localStorage.getItem('isBigCursorEnabled'));
+    if (load) {
+      isBigCursorEnabled = !isBigCursorEnabled;
+    }
+    if (!isBigCursorEnabled) {
+      document
+        .querySelectorAll("*")
+        .forEach((el) => {
+          el.style.cursor = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 512 512'%3E%3Cpath d='M429.742 319.31L82.49 0l-.231 471.744 105.375-100.826 61.89 141.083 96.559-42.358-61.89-141.083 145.549-9.25zM306.563 454.222l-41.62 18.259-67.066-152.879-85.589 81.894.164-333.193 245.264 225.529-118.219 7.512 67.066 152.878z' xmlns='http://www.w3.org/2000/svg'/%3E%3C/svg%3E"), default`;;
+        });
+      localStorage.setItem('isBigCursorEnabled', 1);
+    } else {
+      document
+        .querySelectorAll("*")
+        .forEach((el) => {
+          el.style.cursor = 'default';
+        });
+
+      localStorage.setItem('isBigCursorEnabled', 0);
+    }
+  }
+
   document.getElementById("voice-over").addEventListener("click", () => {
     const text = extractUniqueDocumentText();
     readText(text);
+  });
+
+  document.getElementById("big-cursor").addEventListener("click", () => {
+    enableBigCursor()
   });
 
 
   adjustFontSize();
   adjustLetterSpacing();
   enableDyslexicFont(true);
-  // enableBigCursor(true);
+  enableBigCursor(true);
   enableHighlightLinks(true);
   // enableHighlightHeadings(true);
   adjustLineHeight();
