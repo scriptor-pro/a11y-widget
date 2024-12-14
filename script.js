@@ -87,6 +87,7 @@
     #letter-spacing { background-color: #6f42c1; color: white; }
     #voice-over { background-color: #ff5722; color: white; }
     #big-cursor { background-color: #007bff; color: white; }
+    #summarize { background-color: #28a745; color: white; }
 
     /* Accessibility Body Classes */
     body.inverted-colors {
@@ -151,6 +152,7 @@
       <button id="letter-spacing">Letter Spacing</button>
       <button id="voice-over">Voice Over</button>
       <button id="big-cursor">Big Cursor</button>
+      <button id="summarize">Summarize</button>
     </div>
     <div class="footer">Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a></div>
   `;
@@ -249,6 +251,7 @@
       localStorage.setItem('isDyslexicFontEnabled', 0);
     }
   }
+
   function adjustLetterSpacing(increment = 0) {
     let isLetterSpacingEnabled = parseInt(localStorage.getItem('isLetterSpacingEnabled'));
     if (!increment) {
@@ -453,6 +456,47 @@
     }
   }
 
+  function showOverlay(paragraphs) {
+    // Create the overlay div
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '50%';
+    overlay.style.left = '50%';
+    overlay.style.transform = 'translateX(-50%)';
+    overlay.style.zIndex = '1000';
+    overlay.style.padding = '20px';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    overlay.style.color = 'white';
+    overlay.style.borderRadius = '8px';
+    overlay.style.width = '50%';
+    overlay.style.textAlign = 'center';
+
+    // Create paragraphs and append them to the overlay
+    paragraphs.forEach(text => {
+      const para = document.createElement('p');
+      para.textContent = text;
+      para.style.marginBottom = '10px';
+      overlay.appendChild(para);
+    });
+
+    // Add a close button
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Close';
+    closeButton.style.marginTop = '10px';
+    closeButton.style.padding = '5px 10px';
+    closeButton.style.backgroundColor = 'red';
+    closeButton.style.color = 'white';
+    closeButton.style.border = 'none';
+    closeButton.style.borderRadius = '5px';
+    closeButton.style.cursor = 'pointer';
+    closeButton.addEventListener('click', () => {
+      document.body.removeChild(overlay);
+    });
+
+    overlay.appendChild(closeButton);
+
+    document.body.appendChild(overlay);
+  }
 
   // Event Listeners
   toggleButton.addEventListener("click", toggleWidgetVisibility);
@@ -509,6 +553,11 @@
     adjustLetterSpacing(0.1)
   });
 
+  document.getElementById("summarize").addEventListener("click", () => {
+    fetch('http://127.0.0.1:5000/summarize')
+    showOverlay(["this is something new", "this is another"]);
+
+  });
 
   function extractUniqueDocumentText() {
     const uniqueTexts = new Set();
