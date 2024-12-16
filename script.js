@@ -631,7 +631,7 @@
     try {
       const formData = new FormData();
       formData.append('data', text)
-      const response = await fetch('http:127.0.1:5000/summarize', {
+      const response = await fetch('https://a11y-widget.jerit.in/summarize', {
         method: 'POST',
         body: formData
       });
@@ -712,7 +712,7 @@
         formData.append('image', imageBlob, 'image.jpg');
 
         // Send POST request with FormData
-        const response = await fetch('http://127.0.0.1:5000/upload', {
+        const response = await fetch('https://a11y-widget.jerit.in/upload', {
           method: 'POST',
           body: formData,
         });

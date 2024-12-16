@@ -19,7 +19,3 @@ Include the following `<script>` tag just before closing the `</body>` tag in yo
 ```html
   <script src="https://cdn.jsdelivr.net/gh/jerit-baiju/a11y-widget@latest/script.js"></script>
 ```
-
-```html
-  <script src="https://cdn.jsdelivr.net/gh/jerit-baiju/a11y-widget@latest/script.js"></script>
-
