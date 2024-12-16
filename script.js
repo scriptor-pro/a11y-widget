@@ -554,9 +554,9 @@
   });
 
   document.getElementById("summarize").addEventListener("click", () => {
-    fetch('http://127.0.0.1:5000/summarize')
-    showOverlay(["this is something new", "this is another"]);
-
+    summarizeText(extractUniqueDocumentText(), 'AIzaSyCjMSQv0ptwwlKXqohTeXHzA3Zjf_hjQSU').then(summary => {
+      showOverlay([summary]);
+    })
   });
 
   function extractUniqueDocumentText() {
@@ -611,6 +611,29 @@
         });
 
       localStorage.setItem('isBigCursorEnabled', 0);
+    }
+  }
+
+  async function summarizeText(text, apiKey) {
+    try {
+      const formData = new FormData();
+      formData.append('data', text);
+      formData.append('api-key', apiKey);
+
+      const response = await fetch('http:127.0.1:5000/summarize', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      return data.summary;
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
     }
   }
 
