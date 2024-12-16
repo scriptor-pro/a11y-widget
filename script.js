@@ -85,7 +85,7 @@
     #line-height { background-color: #6610f2; color: white; }
     #dyslexic-font { background-color: #20c997; color: white; }
     #letter-spacing { background-color: #6f42c1; color: white; }
-    #voice-over { background-color: #ff5722; color: white; }
+    #read-screen { background-color: #ff5722; color: white; }
     #big-cursor { background-color: #007bff; color: white; }
     #summarize { background-color: #28a745; color: white; }
 
@@ -150,7 +150,7 @@
       <button id="line-height">Line Height</button>
       <button id="dyslexic-font">Dyslexic Font</button>
       <button id="letter-spacing">Letter Spacing</button>
-      <button id="voice-over">Voice Over</button>
+      <button id="read-screen">Read Screen</button>
       <button id="big-cursor">Big Cursor</button>
       <button id="summarize">Summarize</button>
     </div>
@@ -412,33 +412,46 @@
     }
   }
 
-  function adjustFontSize(multiply = 0) {
-    const storedPercentage = parseFloat(localStorage.getItem('fontPercentage'));
-    if (multiply) {
-      if (storedPercentage) {
-        const newPercentage = storedPercentage + multiply;
-        localStorage.setItem('fontPercentage', newPercentage);
-      } else {
-        const newPercentage = 1 + multiply;
-        localStorage.setItem('fontPercentage', newPercentage);
-      }
-    }
-    document
-      .querySelectorAll("*")
-      .forEach((el) => {
-        if (!el.classList.contains('material-icons')) {
-          let orgFontSize = parseFloat(el.getAttribute('data-asw-orgFontSize'));
+  function adjustFontSize(step) {
+    // Save the updated font size step in local storage
+    let currentStep = parseFloat(localStorage.getItem("fontSizeStep")) || 0;
+    currentStep += step;
+    localStorage.setItem("fontSizeStep", currentStep);
 
-          if (!orgFontSize) {
-            orgFontSize = parseFloat(window.getComputedStyle(el).getPropertyValue('font-size'));
-            el.setAttribute('data-asw-orgFontSize', orgFontSize);
-          }
-          let adjustedFontSize = orgFontSize * (parseFloat(localStorage.getItem('fontPercentage')) || 1);
-          el.style['font-size'] = adjustedFontSize + 'px';
-        }
-      });
+    // Get all elements in the document
+    const elements = document.querySelectorAll("*");
+
+    elements.forEach(element => {
+      // Get the computed style of the element
+      const computedStyle = window.getComputedStyle(element);
+      const fontSize = parseFloat(computedStyle.fontSize);
+
+      // Adjust font size
+      if (!isNaN(fontSize)) {
+        element.style.fontSize = `${fontSize + step}px`;
+      }
+    });
   }
 
+
+  function restoreFontSize() {
+    const savedStep = parseFloat(localStorage.getItem("fontSizeStep"));
+    if (!isNaN(savedStep) && savedStep !== 0) {
+      console.log('Restoring font size:', savedStep);
+      // Get all elements in the document
+      const elements = document.querySelectorAll("*");
+
+      elements.forEach(element => {
+        const computedStyle = window.getComputedStyle(element);
+        const fontSize = parseFloat(computedStyle.fontSize);
+
+        if (!isNaN(fontSize)) {
+          element.style.fontSize = `${fontSize + savedStep}px`;
+        }
+      });
+    }
+  }
+  restoreFontSize()
 
   function enableHighlightLinks(load = false) {
     let isHighlightLinks = parseInt(localStorage.getItem('isHighlightLinks'));
@@ -508,11 +521,11 @@
   });
 
   document.getElementById("increase-text").addEventListener("click", () => {
-    adjustFontSize(0.1);
+    adjustFontSize(2);
   });
 
   document.getElementById("decrease-text").addEventListener("click", () => {
-    adjustFontSize(-0.1);
+    adjustFontSize(-2);
   });
 
   document.getElementById("line-height").addEventListener("click", () => {
@@ -554,7 +567,7 @@
   });
 
   document.getElementById("summarize").addEventListener("click", () => {
-    summarizeText(extractUniqueDocumentText(), 'AIzaSyCjMSQv0ptwwlKXqohTeXHzA3Zjf_hjQSU').then(summary => {
+    summarizeText(extractUniqueDocumentText()).then(summary => {
       showOverlay([summary]);
     })
   });
@@ -614,12 +627,10 @@
     }
   }
 
-  async function summarizeText(text, apiKey) {
+  async function summarizeText(text) {
     try {
       const formData = new FormData();
-      formData.append('data', text);
-      formData.append('api-key', apiKey);
-
+      formData.append('data', text)
       const response = await fetch('http:127.0.1:5000/summarize', {
         method: 'POST',
         body: formData
@@ -637,7 +648,7 @@
     }
   }
 
-  document.getElementById("voice-over").addEventListener("click", () => {
+  document.getElementById("read-screen").addEventListener("click", () => {
     const text = extractUniqueDocumentText();
     readText(text);
   });
@@ -646,8 +657,6 @@
     enableBigCursor()
   });
 
-
-  adjustFontSize();
   adjustLetterSpacing();
   enableDyslexicFont(true);
   enableBigCursor(true);
@@ -701,7 +710,6 @@
         // Create FormData and append the image Blob
         const formData = new FormData();
         formData.append('image', imageBlob, 'image.jpg');
-        formData.append('api-key', 'AIzaSyCjMSQv0ptwwlKXqohTeXHzA3Zjf_hjQSU');
 
         // Send POST request with FormData
         const response = await fetch('http://127.0.0.1:5000/upload', {
