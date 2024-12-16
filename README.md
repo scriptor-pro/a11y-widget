@@ -16,6 +16,7 @@ You can integrate the widget into any webpage by including the following **JavaS
 ### Option 1: Using CDN
 
 Include the following `<script>` tag just before closing the `</body>` tag in your HTML:
+
 ```html
-  <script src="https://cdn.jsdelivr.net/gh/jerit-baiju/a11y-widget@latest/script.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/jerit-baiju/a11y-widget@2.0.0/script.js"></script>¸˛
 ```
