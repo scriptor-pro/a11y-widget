@@ -665,18 +665,48 @@
 
     for (const img of images) {
       try {
-        // Fetch image as blob
-        const imageResponse = await fetch(img.src);
-        const imageBlob = await imageResponse.blob();
+        // Ensure CORS compatibility for web images
+        const isExternal = new URL(img.src, location.href).origin !== location.origin;
 
-        // Create FormData and append image
+        if (isExternal) {
+          img.setAttribute('crossorigin', 'anonymous');
+        }
+
+        // Create a canvas to extract image data
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Wait for the image to load (handles cases where the image isn't fully loaded yet)
+        await new Promise((resolve, reject) => {
+          if (img.complete && img.naturalHeight !== 0) {
+            resolve();
+          } else {
+            img.onload = resolve;
+            img.onerror = reject;
+          }
+        });
+
+        // Set canvas dimensions to match the image
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+
+        // Draw the image onto the canvas
+        ctx.drawImage(img, 0, 0);
+
+        // Convert the canvas content to a Blob
+        const imageBlob = await new Promise((resolve, reject) =>
+          canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Blob conversion failed'))), 'image/jpeg')
+        );
+
+        // Create FormData and append the image Blob
         const formData = new FormData();
         formData.append('image', imageBlob, 'image.jpg');
-        formData.append('api-key', 'AIzaSyCjMSQv0ptwwlKXqohTeXHzA3Zjf_hjQSU')
+        formData.append('api-key', 'AIzaSyCjMSQv0ptwwlKXqohTeXHzA3Zjf_hjQSU');
+
         // Send POST request with FormData
         const response = await fetch('http://127.0.0.1:5000/upload', {
           method: 'POST',
-          body: formData
+          body: formData,
         });
 
         if (!response.ok) {
@@ -686,7 +716,6 @@
         // Get alt text from response and set it
         const altText = await response.json();
         img.setAttribute('alt', altText['alt']);
-
       } catch (error) {
         console.error(`Error processing image ${img.src}:`, error);
       }
@@ -694,4 +723,5 @@
   } catch (error) {
     console.error('Error handling images:', error);
   }
-})();
+}
+)();
