@@ -146,9 +146,9 @@
       <button id="high-contrast">High Contrast</button>
       <button id="check-images">Check Images</button>
       <button id="highlight-links">Highlight Links</button>
-      <button id="hide-images">Hide Images</button>
-      <button id="increase-saturation">Increase Saturation</button>
       <button id="decrease-saturation">Decrease Saturation</button>
+      <button id="increase-saturation">Increase Saturation</button>
+      <button id="hide-images">Hide Images</button>
       <button id="line-height">Line Height</button>
       <button id="dyslexic-font">Dyslexic Font</button>
       <button id="letter-spacing">Letter Spacing</button>
