@@ -90,7 +90,7 @@
     #summarize { background-color: #28a745; color: white; }
 
     /* Accessibility Body Classes */
-    body.inverted-colors {
+    .inverted-colors {
       filter: invert(1);
     }
     body.high-contrast {
@@ -129,6 +129,8 @@
   toggleButton.id = "accessibility-toggle";
   toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"  fill="#e8eaed"><path d="M480-720q-33 0-56.5-23.5T400-800q0-33 23.5-56.5T480-880q33 0 56.5 23.5T560-800q0 33-23.5 56.5T480-720ZM360-80v-520H120v-80h720v80H600v520h-80v-240h-80v240h-80Z"/></svg>`
   toggleButton.style.cursor = "default";
+  toggleButton.style.position = "fixed";
+  toggleButton.style.bottom = "20px";
   toggleButton.style.padding = "4px"
   document.body.appendChild(toggleButton);
 
@@ -160,7 +162,11 @@
 
   // Utility Functions
   const toggleClassOnBody = (className) => {
-    document.body.classList.toggle(className);
+    document.body.childNodes.forEach(child => {
+      if (child.nodeType === 1) {
+        child.classList.toggle(className)
+      }
+    })
   };
 
   const validateImages = () => {
@@ -478,7 +484,7 @@
     overlay.style.width = '100%';
     overlay.style.height = '100%';
     overlay.style.zIndex = '1000';
-    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)'; 
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
     overlay.style.color = 'white';
     overlay.style.display = 'flex';
     overlay.style.flexDirection = 'column';
