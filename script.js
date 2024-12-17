@@ -197,9 +197,9 @@
     let currentSaturation = parseFloat(getComputedStyle(body).getPropertyValue('--saturation') || 1);
 
     if (action === "increase") {
-      currentSaturation += 0.1;
+      currentSaturation += 1;
     } else if (action === "decrease") {
-      currentSaturation -= 0.1;
+      currentSaturation -= 1;
     }
 
     body.style.setProperty('--saturation', currentSaturation);
@@ -473,16 +473,18 @@
     // Create the overlay div
     const overlay = document.createElement('div');
     overlay.style.position = 'fixed';
-    overlay.style.top = '50%';
-    overlay.style.left = '50%';
-    overlay.style.transform = 'translateX(-50%)';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
     overlay.style.zIndex = '1000';
-    overlay.style.padding = '20px';
-    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)'; 
     overlay.style.color = 'white';
-    overlay.style.borderRadius = '8px';
-    overlay.style.width = '50%';
-    overlay.style.textAlign = 'center';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.justifyContent = 'center';
+    overlay.style.padding = '20px';
+    overlay.style.alignItems = 'center';
 
     // Create paragraphs and append them to the overlay
     paragraphs.forEach(text => {
