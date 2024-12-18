@@ -209,7 +209,11 @@
     }
 
     body.style.setProperty('--saturation', currentSaturation);
-    body.style.filter = `saturate(${currentSaturation})`;
+    document.body.childNodes.forEach(child => {
+      if (child.nodeType === 1) {
+        child.style.filter = `saturate(${currentSaturation})`;
+      }
+    })
   }
 
   // Function to toggle widget visibility
@@ -514,9 +518,28 @@
       document.body.removeChild(overlay);
     });
 
+    // Add a read summary button
+    const readSummaryButton = document.createElement('button');
+    readSummaryButton.textContent = 'Read Summary';
+    readSummaryButton.style.marginTop = '10px';
+    readSummaryButton.style.marginLeft = '10px';
+    readSummaryButton.style.padding = '5px 10px';
+    readSummaryButton.style.backgroundColor = 'green';
+    readSummaryButton.style.color = 'white';
+    readSummaryButton.style.border = 'none';
+    readSummaryButton.style.borderRadius = '5px';
+    readSummaryButton.style.cursor = 'pointer';
+    readSummaryButton.addEventListener('click', () => {
+      const summaryText = Array.from(overlay.querySelectorAll('p'))
+        .map(p => p.textContent)
+        .join(' ');
+      readText(summaryText);
+    });
+
     overlay.appendChild(closeButton);
 
     document.body.appendChild(overlay);
+    overlay.appendChild(readSummaryButton);
   }
 
   // Event Listeners
