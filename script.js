@@ -279,7 +279,7 @@
     <div class="widget-section">
       <div class="widget-section-title">Reading Assistance</div>
       <div class="button-group">
-        <button id="read-screen" class="reading-controls">Read Screen</button>
+        <button id="toggle-reading" class="reading-controls">Read Screen</button>
         <button id="summarize" class="reading-controls">Summarize</button>
         <button id="check-images" class="reading-controls">Check Images</button>
       </div>
@@ -525,6 +525,12 @@
     }
   }
 
+  function stopReading() {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  }
+
   function adjustContrast(load = false) {
     let isContrastEnabled = parseInt(localStorage.getItem('isContrastEnabled'));
     if (load) {
@@ -655,8 +661,14 @@
     readButton.textContent = 'Read Summary';
     readButton.className = 'read-button';
     readButton.onclick = () => {
-      const summaryText = paragraphs.join(' ');
-      readText(summaryText);
+      if (window.speechSynthesis.speaking) {
+        stopReading();
+        readButton.textContent = 'Read Summary';
+      } else {
+        const summaryText = paragraphs.join(' ');
+        readText(summaryText);
+        readButton.textContent = 'Stop Reading';
+      }
     };
 
     actions.appendChild(closeButton);
@@ -694,11 +706,18 @@
           showOverlay([summary]);
         })
       },
-      "read-screen": () => {
-        const text = extractUniqueDocumentText();
-        readText(text);
+      "toggle-reading": () => {
+        const button = document.getElementById('toggle-reading');
+        if (window.speechSynthesis.speaking) {
+          stopReading();
+          button.textContent = 'Read Screen';
+        } else {
+          const text = extractUniqueDocumentText();
+          readText(text);
+          button.textContent = 'Stop Reading';
+        }
       },
-      "big-cursor": () => enableBigCursor()
+      "big-cursor": () => enableBigCursor(),
     };
 
     Object.entries(elements).forEach(([id, handler]) => {
@@ -872,5 +891,11 @@
     }
   }
   )();
+
+  window.addEventListener("beforeunload", () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  });
 
 })();
