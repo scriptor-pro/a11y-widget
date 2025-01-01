@@ -234,6 +234,10 @@
     .hide-images img {
       display: none;
     }
+
+    .hide-images [style*="background-image"] {
+      background-image: none !important;
+    }
       
   `;
 
@@ -303,11 +307,16 @@
 
   // Utility Functions
   const toggleClassOnBody = (className) => {
-    document.body.childNodes.forEach(child => {
-      if (child.nodeType === 1) {
-        child.classList.toggle(className)
-      }
-    })
+    if (className === 'hide-images') {
+      document.body.classList.toggle(className);
+      document.querySelectorAll('div').forEach(div => div.classList.toggle(className));
+    } else {
+      document.body.childNodes.forEach(child => {
+        if (child.nodeType === 1) {
+          child.classList.toggle(className)
+        }
+      })
+    }
   };
 
   const validateImages = () => {
