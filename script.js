@@ -221,9 +221,20 @@
       100% { transform: rotate(360deg); }
     }
 
-    body.inverted-colors {
-      filter: invert(1) hue-rotate(180deg);
+    .inverted-colors {
+      filter: invert(1);
     }
+
+    .highlight-links a {
+      background-color: black;
+      color: white;
+      padding: 1rem;
+    }
+
+    .hide-images img {
+      display: none;
+    }
+      
   `;
 
   document.head.appendChild(style);
@@ -620,7 +631,7 @@
   function showOverlay(paragraphs) {
     const overlay = document.createElement('div');
     overlay.className = 'summary-overlay';
-    
+
     paragraphs.forEach(text => {
       const para = document.createElement('p');
       para.textContent = text;
@@ -664,7 +675,7 @@
       "decrease-text": () => adjustFontSize(-2),
       "line-height": () => adjustLineHeight(1),
       "dyslexic-font": () => enableDyslexicFont(),
-      "invert-colors": () => invertColors("inverted-colors"),
+      "invert-colors": () => toggleClassOnBody("inverted-colors"),
       "high-contrast": () => adjustContrast(),
       "check-images": validateImages,
       "highlight-links": () => enableHighlightLinks(),
