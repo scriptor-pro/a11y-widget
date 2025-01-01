@@ -1,13 +1,13 @@
 (function () {
   const style = document.createElement("style");
   style.innerHTML = `
-    /* Modern Accessibility Button */
+    /* Accessibility Button */
     #accessibility-toggle {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
+      bottom: 25px;
+      right: 25px;
       z-index: 9999;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
       color: white;
       border: none;
       border-radius: 16px;
@@ -20,7 +20,7 @@
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
+    
     #accessibility-toggle:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 24px rgba(37, 99, 235, 0.3);
@@ -29,51 +29,55 @@
     #accessibility-toggle svg {
       width: 28px;
       height: 28px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
     }
 
-    /* Modern Accessibility Widget */
+    /* Accessibility Widget */
     #accessibility-widget {
       display: none;
       position: fixed;
       bottom: 90px;
-      right: 24px;
+      right: 25px;
       z-index: 10000;
-      width: 360px;
-      max-width: 90vw;
+      width: min(90vw, 380px);
       background: #ffffff;
       border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
       padding: 24px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: system-ui, -apple-system, sans-serif;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     #accessibility-widget.open {
       display: block;
-      animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideIn 0.3s ease-out;
     }
 
     @keyframes slideIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     #accessibility-widget h2 {
-      font-size: 24px;
+      font-size: 1.5rem;
       font-weight: 600;
       color: #1f2937;
       margin-bottom: 20px;
       padding-bottom: 12px;
-      border-bottom: 2px solid #e5e7eb;
+      border-bottom: 2px solid #f3f4f6;
     }
 
-    .button-category {
+    .widget-section {
       margin-bottom: 20px;
     }
 
-    .category-title {
-      font-size: 14px;
+    .widget-section-title {
+      font-size: 0.875rem;
       font-weight: 600;
       color: #6b7280;
       margin-bottom: 12px;
@@ -83,9 +87,15 @@
 
     #accessibility-widget .button-group {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 480px) {
+      #accessibility-widget .button-group {
+        grid-template-columns: 1fr;
+      }
     }
 
     #accessibility-widget button {
@@ -95,10 +105,10 @@
       border-radius: 12px;
       background: #f3f4f6;
       color: #374151;
-      font-size: 14px;
+      font-size: 0.875rem;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -110,127 +120,109 @@
       transform: translateY(-1px);
     }
 
-    #accessibility-widget button.active {
-      background: #2563eb;
-      color: white;
-    }
+    /* Feature Groups */
+    .text-controls { background: #eef2ff !important; color: #4f46e5 !important; }
+    .visual-controls { background: #f0fdf4 !important; color: #16a34a !important; }
+    .reading-controls { background: #fff7ed !important; color: #ea580c !important; }
+    .navigation-controls { background: #eff6ff !important; color: #2563eb !important; }
 
-    /* Modern Modal Design */
-    .summary-modal {
+    /* Summary Modal */
+    .summary-overlay {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 90%;
-      max-width: 600px;
+      width: min(90vw, 600px);
+      max-height: 80vh;
       background: #ffffff;
       border-radius: 24px;
       padding: 32px;
-      z-index: 1001;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      z-index: 10001;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     }
 
-    .modal-overlay {
+    .summary-overlay p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #374151;
+      margin-bottom: 16px;
+    }
+
+    .summary-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .summary-actions button {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .close-button {
+      background: #ef4444 !important;
+      color: white !important;
+    }
+
+    .read-button {
+      background: #2563eb !important;
+      color: white !important;
+    }
+
+    /* Footer */
+    #accessibility-widget .footer {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 2px solid #f3f4f6;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    #accessibility-widget .footer a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    @font-face {
+      font-family: 'OpenDyslexic3';
+      src: url("https://website-widgets.pages.dev/fonts/OpenDyslexic3-Regular.woff") format("woff"), url("https://website-widgets.pages.dev/fonts/OpenDyslexic3-Regular.ttf") format("truetype");
+    }
+
+    /* Loader Styles */
+    .loader-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(4px);
-      z-index: 1000;
-    }
-
-    .modal-content {
-      font-size: 16px;
-      line-height: 1.6;
-      color: #374151;
-      margin-bottom: 24px;
-      max-height: 60vh;
-      overflow-y: auto;
-      padding-right: 16px;
-    }
-
-    .modal-actions {
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-    }
-
-    .modal-button {
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .modal-button.primary {
-      background: #2563eb;
-      color: white;
-      border: none;
-    }
-
-    .modal-button.secondary {
-      background: #f3f4f6;
-      color: #374151;
-      border: none;
-    }
-
-    /* Modern Loader */
-    .loader-overlay {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(8px);
-    }
-
-    .loader {
-      width: 40px;
-      height: 40px;
-      border: 3px solid #e5e7eb;
-      border-radius: 50%;
-      border-top-color: #2563eb;
-      animation: loader-spin 0.8s linear infinite;
-    }
-
-    @keyframes loader-spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Tooltips */
-    [data-tooltip] {
-      position: relative;
-    }
-
-    [data-tooltip]:before {
-      content: attr(data-tooltip);
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 8px 12px;
-      background: #1f2937;
-      color: white;
-      font-size: 12px;
-      border-radius: 8px;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.2s ease;
-    }
-
-    [data-tooltip]:hover:before {
-      opacity: 1;
-      transform: translateX(-50%) translateY(-8px);
-    }
-
-    /* Hide Images */
-    .hide-images img {
-      opacity: 0 !important;
-      visibility: hidden !important;
+      justify-content: center;
+      align-items: center;
+      z-index: 10001;
     }
     
-    .hide-images *[style*="background-image"] {
-      background-image: none !important;
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #FFF;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    body.inverted-colors {
+      filter: invert(1) hue-rotate(180deg);
     }
   `;
 
@@ -252,56 +244,48 @@
   widget.innerHTML = `
     <h2>Accessibility Options</h2>
     
-    <div class="button-category">
-      <div class="category-title">Text Options</div>
+    <div class="widget-section">
+      <div class="widget-section-title">Text Adjustments</div>
       <div class="button-group">
-        <button id="increase-text" data-tooltip="Increase text size">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 2v12M2 8h12"/>
-          </svg>
-          Text Size
-        </button>
-        <button id="decrease-text" data-tooltip="Decrease text size">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M2 8h12"/>
-          </svg>
-          Text Size
-        </button>
-        <button id="dyslexic-font" data-tooltip="Toggle dyslexia-friendly font">Dyslexic Font</button>
-        <button id="letter-spacing" data-tooltip="Adjust letter spacing">Letter Spacing</button>
-        <button id="line-height" data-tooltip="Adjust line height">Line Height</button>
+        <button id="increase-text" class="text-controls">Increase Text</button>
+        <button id="decrease-text" class="text-controls">Decrease Text</button>
+        <button id="line-height" class="text-controls">Line Height</button>
+        <button id="letter-spacing" class="text-controls">Letter Spacing</button>
+        <button id="dyslexic-font" class="text-controls">Dyslexic Font</button>
       </div>
     </div>
 
-    <div class="button-category">
-      <div class="category-title">Visual Adjustments</div>
+    <div class="widget-section">
+      <div class="widget-section-title">Visual Preferences</div>
       <div class="button-group">
-        <button id="invert-colors" data-tooltip="Invert page colors">Invert Colors</button>
-        <button id="high-contrast" data-tooltip="Enable high contrast">High Contrast</button>
-        <button id="increase-saturation" data-tooltip="Increase color intensity">Saturate</button>
-        <button id="decrease-saturation" data-tooltip="Decrease color intensity">Desaturate</button>
-        <button id="hide-images" data-tooltip="Hide all images">Hide Images</button>
+        <button id="invert-colors" class="visual-controls">Invert Colors</button>
+        <button id="high-contrast" class="visual-controls">High Contrast</button>
+        <button id="increase-saturation" class="visual-controls">Increase Saturation</button>
+        <button id="decrease-saturation" class="visual-controls">Decrease Saturation</button>
       </div>
     </div>
 
-    <div class="button-category">
-      <div class="category-title">Reading Aids</div>
+    <div class="widget-section">
+      <div class="widget-section-title">Reading Assistance</div>
       <div class="button-group">
-        <button id="read-screen" data-tooltip="Read page content aloud">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 2v12M4 6l4-4 4 4M4 10l4 4 4-4"/>
-          </svg>
-          Read Aloud
-        </button>
-        <button id="summarize" data-tooltip="Get page summary">Summarize</button>
-        <button id="big-cursor" data-tooltip="Enable large cursor">Big Cursor</button>
-        <button id="highlight-links" data-tooltip="Highlight all links">Highlight Links</button>
+        <button id="read-screen" class="reading-controls">Read Screen</button>
+        <button id="summarize" class="reading-controls">Summarize</button>
+        <button id="check-images" class="reading-controls">Check Images</button>
+      </div>
+    </div>
+
+    <div class="widget-section">
+      <div class="widget-section-title">Navigation</div>
+      <div class="button-group">
+        <button id="highlight-links" class="navigation-controls">Highlight Links</button>
+        <button id="big-cursor" class="navigation-controls">Big Cursor</button>
+        <button id="hide-images" class="navigation-controls">Toggle Images</button>
       </div>
     </div>
 
     <div class="footer">
-      <a href="https://mariancollege.org" target="_blank" rel="noopener">mariancollege.org</a> |
-      <a href="https://github.com/Jerit-Baiju/a11y-widget/" target="_blank" rel="noopener">Contribute</a>
+      Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a> |
+      <a href="https://github.com/Jerit-Baiju/a11y-widget/" target="_blank">Contribute</a>
     </div>
   `;
   document.body.appendChild(widget);
@@ -634,45 +618,35 @@
   }
 
   function showOverlay(paragraphs) {
-    const modalOverlay = document.createElement('div');
-    modalOverlay.className = 'modal-overlay';
-
-    const modal = document.createElement('div');
-    modal.className = 'summary-modal';
-
-    const content = document.createElement('div');
-    content.className = 'modal-content';
+    const overlay = document.createElement('div');
+    overlay.className = 'summary-overlay';
+    
     paragraphs.forEach(text => {
       const para = document.createElement('p');
       para.textContent = text;
-      content.appendChild(para);
+      overlay.appendChild(para);
     });
 
     const actions = document.createElement('div');
-    actions.className = 'modal-actions';
+    actions.className = 'summary-actions';
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Close';
+    closeButton.className = 'close-button';
+    closeButton.onclick = () => document.body.removeChild(overlay);
 
     const readButton = document.createElement('button');
-    readButton.className = 'modal-button primary';
-    readButton.textContent = 'Read Aloud';
+    readButton.textContent = 'Read Summary';
+    readButton.className = 'read-button';
     readButton.onclick = () => {
       const summaryText = paragraphs.join(' ');
       readText(summaryText);
     };
 
-    const closeButton = document.createElement('button');
-    closeButton.className = 'modal-button secondary';
-    closeButton.textContent = 'Close';
-    closeButton.onclick = () => {
-      document.body.removeChild(modalOverlay);
-    };
-
-    actions.appendChild(readButton);
     actions.appendChild(closeButton);
-
-    modal.appendChild(content);
-    modal.appendChild(actions);
-    modalOverlay.appendChild(modal);
-    document.body.appendChild(modalOverlay);
+    actions.appendChild(readButton);
+    overlay.appendChild(actions);
+    document.body.appendChild(overlay);
   }
 
   // Event Listeners
@@ -690,7 +664,7 @@
       "decrease-text": () => adjustFontSize(-2),
       "line-height": () => adjustLineHeight(1),
       "dyslexic-font": () => enableDyslexicFont(),
-      "invert-colors": () => toggleClassOnBody("inverted-colors"),
+      "invert-colors": () => invertColors("inverted-colors"),
       "high-contrast": () => adjustContrast(),
       "check-images": validateImages,
       "highlight-links": () => enableHighlightLinks(),
