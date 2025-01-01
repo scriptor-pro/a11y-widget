@@ -45,6 +45,8 @@
       padding: 24px;
       font-family: system-ui, -apple-system, sans-serif;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
     }
 
     #accessibility-widget.open {
@@ -90,12 +92,6 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 8px;
       margin-bottom: 8px;
-    }
-
-    @media (max-width: 480px) {
-      #accessibility-widget .button-group {
-        grid-template-columns: 1fr;
-      }
     }
 
     #accessibility-widget button {
