@@ -222,9 +222,25 @@
     }
 
     .highlight-links a {
-      background-color: black;
-      color: white;
-      padding: 1rem;
+      padding: 2px 4px;
+      background-color: #fef3c7;
+      border: 2px solid #f59e0b;
+      border-radius: 4px;
+      text-decoration: none !important;
+      color: #000 !important;
+      transition: all 0.2s ease;
+    }
+
+    .highlight-links a:hover {
+      background-color: #fcd34d;
+      border-color: #d97706;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .highlight-links a:focus {
+      outline: 3px solid #2563eb;
+      outline-offset: 2px;
     }
 
     .hide-images img {
