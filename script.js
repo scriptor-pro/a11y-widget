@@ -1,124 +1,236 @@
 (function () {
   const style = document.createElement("style");
   style.innerHTML = `
-    /* Accessibility Button */
+    /* Modern Accessibility Button */
     #accessibility-toggle {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
+      bottom: 24px;
+      right: 24px;
       z-index: 9999;
-      background-color: #007acc;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: white;
       border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 18px;
-      text-align: center;
-      line-height: 50px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.2);
       cursor: pointer;
-      transition: transform 0.2s ease-in-out;
-    }
-    #accessibility-toggle:hover {
-      transform: scale(1.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Accessibility Widget */
+    #accessibility-toggle:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(37, 99, 235, 0.3);
+    }
+
+    #accessibility-toggle svg {
+      width: 28px;
+      height: 28px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+
+    /* Modern Accessibility Widget */
     #accessibility-widget {
       display: none;
       position: fixed;
-      bottom: 80px;
-      right: 20px;
+      bottom: 90px;
+      right: 24px;
       z-index: 10000;
-      width: 320px;
-      background: #f9f9f9;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      padding: 20px;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 14px;
-      transition: all 0.3s ease-in-out;
+      width: 360px;
+      max-width: 90vw;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+      padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     #accessibility-widget.open {
       display: block;
+      animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     #accessibility-widget h2 {
-      font-size: 20px;
-      margin-bottom: 15px;
-      color: #333;
+      font-size: 24px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .button-category {
+      margin-bottom: 20px;
+    }
+
+    .category-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     #accessibility-widget .button-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 15px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
     #accessibility-widget button {
-      flex: 1 1 calc(50% - 10px);
-      padding: 10px;
+      width: 100%;
+      padding: 12px;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      border-radius: 12px;
+      background: #f3f4f6;
+      color: #374151;
       font-size: 14px;
-      transition: background-color 0.3s ease-in-out, opacity 0.3s ease-in-out;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
     #accessibility-widget button:hover {
-      opacity: 0.9;
+      background: #e5e7eb;
+      transform: translateY(-1px);
     }
 
-    #increase-text { background-color: #007acc; color: white; }
-    #decrease-text { background-color: #28a745; color: white; }
-    #invert-colors { background-color: #ffc107; color: white; }
-    #high-contrast { background-color: #dc3545; color: white; }
-    #check-images { background-color: #17a2b8; color: white; }
-    #highlight-links { background-color: #6c757d; color: white; }
-    #hide-images { background-color: #343a40; color: white; }
-    #increase-saturation { background-color: #e83e8c; color: white; }
-    #decrease-saturation { background-color: #fd7e14; color: white; }
-    #line-height { background-color: #6610f2; color: white; }
-    #dyslexic-font { background-color: #20c997; color: white; }
-    #letter-spacing { background-color: #6f42c1; color: white; }
-    #read-screen { background-color: #ff5722; color: white; }
-    #big-cursor { background-color: #007bff; color: white; }
-    #summarize { background-color: #28a745; color: white; }
-
-    /* Accessibility Body Classes */
-    .inverted-colors {
-      filter: invert(1);
-    }
-    body.high-contrast {
-      background-color: #000;
-      color: #fff;
-    }
-    body.hide-images img {
-      display: none;
-    }
-
-    /* Highlight Links */
-    .highlight-links a {
-      background-color: black;
+    #accessibility-widget button.active {
+      background: #2563eb;
       color: white;
-      padding: 1rem;
     }
 
-    /* Developed By Section */
-    #accessibility-widget .footer {
-      margin-top: 20px;
-      text-align: center;
+    /* Modern Modal Design */
+    .summary-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 600px;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 32px;
+      z-index: 1001;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+    }
+
+    .modal-content {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #374151;
+      margin-bottom: 24px;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding-right: 16px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .modal-button {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .modal-button.primary {
+      background: #2563eb;
+      color: white;
+      border: none;
+    }
+
+    .modal-button.secondary {
+      background: #f3f4f6;
+      color: #374151;
+      border: none;
+    }
+
+    /* Modern Loader */
+    .loader-overlay {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+    }
+
+    .loader {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e5e7eb;
+      border-radius: 50%;
+      border-top-color: #2563eb;
+      animation: loader-spin 0.8s linear infinite;
+    }
+
+    @keyframes loader-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Tooltips */
+    [data-tooltip] {
+      position: relative;
+    }
+
+    [data-tooltip]:before {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 12px;
+      background: #1f2937;
+      color: white;
       font-size: 12px;
-      color: #666;
+      border-radius: 8px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
     }
 
-    @font-face {
-      font-family: 'OpenDyslexic3';
-      src: url("https://website-widgets.pages.dev/fonts/OpenDyslexic3-Regular.woff") format("woff"), url("https://website-widgets.pages.dev/fonts/OpenDyslexic3-Regular.ttf") format("truetype");
+    [data-tooltip]:hover:before {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-8px);
+    }
+
+    /* Hide Images */
+    .hide-images img {
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+    
+    .hide-images *[style*="background-image"] {
+      background-image: none !important;
     }
   `;
 
@@ -139,24 +251,58 @@
   widget.id = "accessibility-widget";
   widget.innerHTML = `
     <h2>Accessibility Options</h2>
-    <div class="button-group">
-      <button id="increase-text">A+</button>
-      <button id="decrease-text">A-</button>
-      <button id="invert-colors">Invert Colors</button>
-      <button id="high-contrast">High Contrast</button>
-      <button id="check-images">Check Images</button>
-      <button id="highlight-links">Highlight Links</button>
-      <button id="decrease-saturation">Decrease Saturation</button>
-      <button id="increase-saturation">Increase Saturation</button>
-      <button id="hide-images">Hide Images</button>
-      <button id="line-height">Line Height</button>
-      <button id="dyslexic-font">Dyslexic Font</button>
-      <button id="letter-spacing">Letter Spacing</button>
-      <button id="read-screen">Read Screen</button>
-      <button id="big-cursor">Big Cursor</button>
-      <button id="summarize">Summarize</button>
+    
+    <div class="button-category">
+      <div class="category-title">Text Options</div>
+      <div class="button-group">
+        <button id="increase-text" data-tooltip="Increase text size">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 2v12M2 8h12"/>
+          </svg>
+          Text Size
+        </button>
+        <button id="decrease-text" data-tooltip="Decrease text size">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M2 8h12"/>
+          </svg>
+          Text Size
+        </button>
+        <button id="dyslexic-font" data-tooltip="Toggle dyslexia-friendly font">Dyslexic Font</button>
+        <button id="letter-spacing" data-tooltip="Adjust letter spacing">Letter Spacing</button>
+        <button id="line-height" data-tooltip="Adjust line height">Line Height</button>
+      </div>
     </div>
-    <div class="footer">Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a></div>
+
+    <div class="button-category">
+      <div class="category-title">Visual Adjustments</div>
+      <div class="button-group">
+        <button id="invert-colors" data-tooltip="Invert page colors">Invert Colors</button>
+        <button id="high-contrast" data-tooltip="Enable high contrast">High Contrast</button>
+        <button id="increase-saturation" data-tooltip="Increase color intensity">Saturate</button>
+        <button id="decrease-saturation" data-tooltip="Decrease color intensity">Desaturate</button>
+        <button id="hide-images" data-tooltip="Hide all images">Hide Images</button>
+      </div>
+    </div>
+
+    <div class="button-category">
+      <div class="category-title">Reading Aids</div>
+      <div class="button-group">
+        <button id="read-screen" data-tooltip="Read page content aloud">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 2v12M4 6l4-4 4 4M4 10l4 4 4-4"/>
+          </svg>
+          Read Aloud
+        </button>
+        <button id="summarize" data-tooltip="Get page summary">Summarize</button>
+        <button id="big-cursor" data-tooltip="Enable large cursor">Big Cursor</button>
+        <button id="highlight-links" data-tooltip="Highlight all links">Highlight Links</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <a href="https://mariancollege.org" target="_blank" rel="noopener">mariancollege.org</a> |
+      <a href="https://github.com/Jerit-Baiju/a11y-widget/" target="_blank" rel="noopener">Contribute</a>
+    </div>
   `;
   document.body.appendChild(widget);
 
@@ -226,7 +372,7 @@
   }
 
   function enableDyslexicFont(load = false) {
-    let isDyslexicFontEnabled = parseInt(localStorage.getItem('isDyslexicFontEnabled'));
+    let isDyslexicFontEnabled = parseInt(localStorage.getItem('isDyslexicFontEnabled')) || 0;
     if (load) {
       isDyslexicFontEnabled = !isDyslexicFontEnabled;
     }
@@ -235,7 +381,7 @@
         .querySelectorAll("*")
         .forEach((el) => {
           if (!el.classList.contains('material-icons')) {
-            orgFontFamily = el.style['font-family'];
+            let orgFontFamily = el.style['font-family']; // Fixed undefined variable
             el.setAttribute('data-asw-orgFontFamily', orgFontFamily);
             el.style['font-family'] = 'OpenDyslexic3';
           }
@@ -358,18 +504,24 @@
   }
 
   function readText(text) {
-    // Check if the browser supports speech synthesis
+    if (!text || typeof text !== 'string') {
+      console.error('Invalid text provided for speech synthesis');
+      return;
+    }
+
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text); // Create a new speech synthesis instance
-
-      utterance.pitch = 1; // Range is 0 to 2 (default is 1)
-      utterance.rate = 1; // Range is 0.1 to 10 (default is 1)
-      utterance.volume = 1; // Range is 0 to 1 (default is 1)
-
-      // Speak the text
-      window.speechSynthesis.speak(utterance);
+      try {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.onerror = (event) => {
+          console.error('Speech synthesis error:', event);
+        };
+        window.speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.error('Speech synthesis failed:', error);
+        alert('Speech synthesis failed. Please try again.');
+      }
     } else {
-      alert('Sorry, your browser does not support speech synthesis.');
+      alert('Speech synthesis is not supported in your browser.');
     }
   }
 
@@ -447,18 +599,20 @@
   function restoreFontSize() {
     const savedStep = parseFloat(localStorage.getItem("fontSizeStep"));
     if (!isNaN(savedStep) && savedStep !== 0) {
-      console.log('Restoring font size:', savedStep);
-      // Get all elements in the document
-      const elements = document.querySelectorAll("*");
-
-      elements.forEach(element => {
-        const computedStyle = window.getComputedStyle(element);
-        const fontSize = parseFloat(computedStyle.fontSize);
-
-        if (!isNaN(fontSize)) {
-          element.style.fontSize = `${fontSize + savedStep}px`;
-        }
-      });
+      try {
+        const elements = document.querySelectorAll("*");
+        elements.forEach(element => {
+          const computedStyle = window.getComputedStyle(element);
+          const fontSize = parseFloat(computedStyle.fontSize);
+          if (!isNaN(fontSize)) {
+            const newSize = Math.max(fontSize + savedStep, 8); // Prevent too small fonts
+            element.style.fontSize = `${newSize}px`;
+          }
+        });
+      } catch (error) {
+        console.error('Error restoring font size:', error);
+        localStorage.removeItem("fontSizeStep"); // Reset on error
+      }
     }
   }
   restoreFontSize()
@@ -480,66 +634,45 @@
   }
 
   function showOverlay(paragraphs) {
-    // Create the overlay div
-    const overlay = document.createElement('div');
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.zIndex = '1000';
-    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-    overlay.style.color = 'white';
-    overlay.style.display = 'flex';
-    overlay.style.flexDirection = 'column';
-    overlay.style.justifyContent = 'center';
-    overlay.style.padding = '20px';
-    overlay.style.alignItems = 'center';
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
 
-    // Create paragraphs and append them to the overlay
+    const modal = document.createElement('div');
+    modal.className = 'summary-modal';
+
+    const content = document.createElement('div');
+    content.className = 'modal-content';
     paragraphs.forEach(text => {
       const para = document.createElement('p');
       para.textContent = text;
-      para.style.marginBottom = '10px';
-      overlay.appendChild(para);
+      content.appendChild(para);
     });
 
-    // Add a close button
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'Close';
-    closeButton.style.marginTop = '10px';
-    closeButton.style.padding = '5px 10px';
-    closeButton.style.backgroundColor = 'red';
-    closeButton.style.color = 'white';
-    closeButton.style.border = 'none';
-    closeButton.style.borderRadius = '5px';
-    closeButton.style.cursor = 'pointer';
-    closeButton.addEventListener('click', () => {
-      document.body.removeChild(overlay);
-    });
+    const actions = document.createElement('div');
+    actions.className = 'modal-actions';
 
-    // Add a read summary button
-    const readSummaryButton = document.createElement('button');
-    readSummaryButton.textContent = 'Read Summary';
-    readSummaryButton.style.marginTop = '10px';
-    readSummaryButton.style.marginLeft = '10px';
-    readSummaryButton.style.padding = '5px 10px';
-    readSummaryButton.style.backgroundColor = 'green';
-    readSummaryButton.style.color = 'white';
-    readSummaryButton.style.border = 'none';
-    readSummaryButton.style.borderRadius = '5px';
-    readSummaryButton.style.cursor = 'pointer';
-    readSummaryButton.addEventListener('click', () => {
-      const summaryText = Array.from(overlay.querySelectorAll('p'))
-        .map(p => p.textContent)
-        .join(' ');
+    const readButton = document.createElement('button');
+    readButton.className = 'modal-button primary';
+    readButton.textContent = 'Read Aloud';
+    readButton.onclick = () => {
+      const summaryText = paragraphs.join(' ');
       readText(summaryText);
-    });
+    };
 
-    overlay.appendChild(closeButton);
+    const closeButton = document.createElement('button');
+    closeButton.className = 'modal-button secondary';
+    closeButton.textContent = 'Close';
+    closeButton.onclick = () => {
+      document.body.removeChild(modalOverlay);
+    };
 
-    document.body.appendChild(overlay);
-    overlay.appendChild(readSummaryButton);
+    actions.appendChild(readButton);
+    actions.appendChild(closeButton);
+
+    modal.appendChild(content);
+    modal.appendChild(actions);
+    modalOverlay.appendChild(modal);
+    document.body.appendChild(modalOverlay);
   }
 
   // Event Listeners
@@ -551,57 +684,42 @@
     }
   });
 
-  document.getElementById("increase-text").addEventListener("click", () => {
-    adjustFontSize(2);
-  });
+  function initializeEventListeners() {
+    const elements = {
+      "increase-text": () => adjustFontSize(2),
+      "decrease-text": () => adjustFontSize(-2),
+      "line-height": () => adjustLineHeight(1),
+      "dyslexic-font": () => enableDyslexicFont(),
+      "invert-colors": () => toggleClassOnBody("inverted-colors"),
+      "high-contrast": () => adjustContrast(),
+      "check-images": validateImages,
+      "highlight-links": () => enableHighlightLinks(),
+      "hide-images": () => toggleClassOnBody("hide-images"),
+      "increase-saturation": () => adjustSaturation("increase"),
+      "decrease-saturation": () => adjustSaturation("decrease"),
+      "letter-spacing": () => adjustLetterSpacing(0.1),
+      "summarize": () => {
+        widget.style.display = 'none'; // Hide the widget before showing summary
+        summarizeText(extractUniqueDocumentText()).then(summary => {
+          showOverlay([summary]);
+        })
+      },
+      "read-screen": () => {
+        const text = extractUniqueDocumentText();
+        readText(text);
+      },
+      "big-cursor": () => enableBigCursor()
+    };
 
-  document.getElementById("decrease-text").addEventListener("click", () => {
-    adjustFontSize(-2);
-  });
+    Object.entries(elements).forEach(([id, handler]) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.addEventListener("click", handler);
+      }
+    });
+  }
 
-  document.getElementById("line-height").addEventListener("click", () => {
-    adjustLineHeight(1)
-  });
-
-  document.getElementById("dyslexic-font").addEventListener("click", () => {
-    enableDyslexicFont()
-  });
-
-  document.getElementById("invert-colors").addEventListener("click", () => {
-    toggleClassOnBody("inverted-colors");
-  });
-
-  document.getElementById("high-contrast").addEventListener("click", () => {
-    adjustContrast()
-  });
-
-  document.getElementById("check-images").addEventListener("click", validateImages);
-
-  document.getElementById("highlight-links").addEventListener("click", () => {
-    enableHighlightLinks()
-  });
-
-  document.getElementById("hide-images").addEventListener("click", () => {
-    toggleClassOnBody("hide-images");
-  });
-
-  document.getElementById("increase-saturation").addEventListener("click", () => {
-    adjustSaturation("increase");
-  });
-
-  document.getElementById("decrease-saturation").addEventListener("click", () => {
-    adjustSaturation("decrease");
-  });
-
-  document.getElementById("letter-spacing").addEventListener("click", () => {
-    adjustLetterSpacing(0.1)
-  });
-
-  document.getElementById("summarize").addEventListener("click", () => {
-    summarizeText(extractUniqueDocumentText()).then(summary => {
-      showOverlay([summary]);
-    })
-  });
+  initializeEventListeners();
 
   function extractUniqueDocumentText() {
     const uniqueTexts = new Set();
@@ -658,7 +776,16 @@
     }
   }
 
+  function showLoader() {
+    const loaderOverlay = document.createElement('div');
+    loaderOverlay.className = 'loader-overlay';
+    loaderOverlay.innerHTML = '<div class="loader"></div>';
+    document.body.appendChild(loaderOverlay);
+    return loaderOverlay;
+  }
+
   async function summarizeText(text) {
+    const loader = showLoader();
     try {
       const formData = new FormData();
       formData.append('data', text)
@@ -676,91 +803,84 @@
     } catch (error) {
       console.error('Error:', error);
       throw error;
+    } finally {
+      loader.remove();
     }
   }
 
-  document.getElementById("read-screen").addEventListener("click", () => {
-    const text = extractUniqueDocumentText();
-    readText(text);
-  });
+  (async function handleImagesWithoutAlt() {
+    try {
+      const images = document.querySelectorAll('img:not([alt]), img[alt=""]');
 
-  document.getElementById("big-cursor").addEventListener("click", () => {
-    enableBigCursor()
-  });
+      for (const img of images) {
+        try {
+          // Skip invalid image sources
+          if (!img.src || img.src === '') continue;
 
-  adjustLetterSpacing();
-  enableDyslexicFont(true);
-  enableBigCursor(true);
-  enableHighlightLinks(true);
-  // enableHighlightHeadings(true);
-  adjustLineHeight();
-  // adjustFontWeight();
-  adjustContrast(true);
+          const isExternal = new URL(img.src, location.href).origin !== location.origin;
+
+          if (isExternal) {
+            img.crossOrigin = 'anonymous';
+          }
+
+          // Add timeout to image loading
+          await Promise.race([
+            new Promise((resolve, reject) => {
+              if (img.complete && img.naturalHeight !== 0) {
+                resolve();
+              } else {
+                img.onload = resolve;
+                img.onerror = reject;
+              }
+            }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Image load timeout')), 5000)
+            )
+          ]);
+
+          // Create a canvas to extract image data
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          // Set canvas dimensions to match the image
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+
+          // Draw the image onto the canvas
+          ctx.drawImage(img, 0, 0);
+
+          // Convert the canvas content to a Blob
+          const imageBlob = await new Promise((resolve, reject) =>
+            canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Blob conversion failed'))), 'image/jpeg')
+          );
+
+          // Create FormData and append the image Blob
+          const formData = new FormData();
+          formData.append('image', imageBlob, 'image.jpg');
+
+          // Send POST request with FormData
+          const response = await fetch('https://a11y-widget.jerit.in/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          // Get alt text from response and set it
+          const altText = await response.json();
+          img.setAttribute('alt', altText['alt']);
+        } catch (error) {
+          console.error(`Error processing image ${img.src}:`, error);
+          // Set a fallback alt text
+          img.setAttribute('alt', 'Image description unavailable');
+        }
+      }
+    } catch (error) {
+      console.error('Error handling images:', error);
+    }
+  }
+  )();
 
 })();
-
-(async function handleImagesWithoutAlt() {
-  try {
-    const images = document.querySelectorAll('img:not([alt]), img[alt=""]');
-
-    for (const img of images) {
-      try {
-        // Ensure CORS compatibility for web images
-        const isExternal = new URL(img.src, location.href).origin !== location.origin;
-
-        if (isExternal) {
-          img.setAttribute('crossorigin', 'anonymous');
-        }
-
-        // Create a canvas to extract image data
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-        // Wait for the image to load (handles cases where the image isn't fully loaded yet)
-        await new Promise((resolve, reject) => {
-          if (img.complete && img.naturalHeight !== 0) {
-            resolve();
-          } else {
-            img.onload = resolve;
-            img.onerror = reject;
-          }
-        });
-
-        // Set canvas dimensions to match the image
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-
-        // Draw the image onto the canvas
-        ctx.drawImage(img, 0, 0);
-
-        // Convert the canvas content to a Blob
-        const imageBlob = await new Promise((resolve, reject) =>
-          canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Blob conversion failed'))), 'image/jpeg')
-        );
-
-        // Create FormData and append the image Blob
-        const formData = new FormData();
-        formData.append('image', imageBlob, 'image.jpg');
-
-        // Send POST request with FormData
-        const response = await fetch('https://a11y-widget.jerit.in/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        // Get alt text from response and set it
-        const altText = await response.json();
-        img.setAttribute('alt', altText['alt']);
-      } catch (error) {
-        console.error(`Error processing image ${img.src}:`, error);
-      }
-    }
-  } catch (error) {
-    console.error('Error handling images:', error);
-  }
-}
-)();
