@@ -519,32 +519,135 @@
     }
   }
 
-  function readText(text) {
+  function readText(text, button = null) {
     if (!text || typeof text !== 'string') {
       console.error('Invalid text provided for speech synthesis');
       return;
     }
-
+  
     if ('speechSynthesis' in window) {
       try {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.onerror = (event) => {
-          console.error('Speech synthesis error:', event);
+        // Stop any ongoing speech first
+        window.speechSynthesis.cancel();
+        
+        // Split text into sentences and filter out lone punctuation marks
+        const sentences = text.split(/([.!?]+[\s\n]+|$)/)
+          .filter(Boolean)
+          .filter(s => !/^[.!?,;:\s]+$/.test(s)); // Skip standalone punctuation
+        const chunks = [];
+
+        let currentChunk = '';
+        for (const sentence of sentences) {
+          const cleanSentence = sentence.trim();
+          if (!cleanSentence) continue;
+
+          // If sentence is under 200 chars, try to add it to current chunk
+          if (cleanSentence.length <= 200) {
+            if ((currentChunk + ' ' + cleanSentence).length <= 200) {
+              currentChunk = currentChunk + (currentChunk ? ' ' : '') + cleanSentence;
+            } else {
+              if (currentChunk) chunks.push(currentChunk);
+              currentChunk = cleanSentence;
+            }
+          } else {
+            // Push current chunk if exists
+            if (currentChunk) {
+              chunks.push(currentChunk);
+              currentChunk = '';
+            }
+            
+            // Split long sentences at word boundaries
+            const words = cleanSentence.split(/\s+/);
+            let tempChunk = '';
+            
+            for (const word of words) {
+              if ((tempChunk + ' ' + word).length <= 200) {
+                tempChunk = tempChunk + (tempChunk ? ' ' : '') + word;
+              } else {
+                if (tempChunk) chunks.push(tempChunk);
+                tempChunk = word;
+              }
+            }
+            if (tempChunk) chunks.push(tempChunk);
+          }
+        }
+        
+        // Push final chunk if exists
+        if (currentChunk) {
+          chunks.push(currentChunk);
+        }
+
+        // Filter out any remaining empty chunks or punctuation-only chunks
+        const validChunks = chunks
+          .map(chunk => chunk.trim())
+          .filter(chunk => chunk && !/^[.!?,;:\s]+$/.test(chunk));
+  
+        let currentChunkIndex = 0;
+        let isSpeaking = true;
+  
+        function speakNextChunk() {
+          if (currentChunkIndex < validChunks.length && isSpeaking) {
+            const utterance = new SpeechSynthesisUtterance(validChunks[currentChunkIndex]);
+            console.log('Speaking:', validChunks[currentChunkIndex]);
+            
+            utterance.onend = () => {
+              currentChunkIndex++;
+              if (currentChunkIndex >= validChunks.length) {
+                // Reset button text when all chunks are read
+                if (button) {
+                  button.textContent = 'Read Screen';
+                }
+                window.a11yWidget.isReading = false;
+              } else {
+                speakNextChunk();
+              }
+            };
+  
+            utterance.onerror = (event) => {
+              console.error('Speech synthesis error:', event);
+              currentChunkIndex++;
+              speakNextChunk();
+            };
+  
+            window.speechSynthesis.speak(utterance);
+          }
+        }
+
+        // Store the control functions and state in window for global access
+        window.a11yWidget = window.a11yWidget || {};
+        window.a11yWidget.isReading = true;
+        window.a11yWidget.stopSpeaking = () => {
+          isSpeaking = false;
+          window.speechSynthesis.cancel();
+          if (button) {
+            button.textContent = 'Read Screen';
+          }
+          window.a11yWidget.isReading = false;
         };
-        window.speechSynthesis.speak(utterance);
+  
+        speakNextChunk();
       } catch (error) {
         console.error('Speech synthesis failed:', error);
         alert('Speech synthesis failed. Please try again.');
+        if (button) {
+          button.textContent = 'Read Screen';
+        }
+        window.a11yWidget.isReading = false;
       }
     } else {
       alert('Speech synthesis is not supported in your browser.');
+      if (button) {
+        button.textContent = 'Read Screen';
+      }
+      window.a11yWidget.isReading = false;
     }
   }
 
   function stopReading() {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+    if (window.a11yWidget && window.a11yWidget.stopSpeaking) {
+      window.a11yWidget.stopSpeaking();
     }
+    window.speechSynthesis.cancel();
   }
 
   function adjustContrast(load = false) {
@@ -682,7 +785,7 @@
         readButton.textContent = 'Read Summary';
       } else {
         const summaryText = paragraphs.join(' ');
-        readText(summaryText);
+        readText(summaryText, readButton);
         readButton.textContent = 'Stop Reading';
       }
     };
@@ -729,7 +832,7 @@
           button.textContent = 'Read Screen';
         } else {
           const text = extractUniqueDocumentText();
-          readText(text);
+          readText(text, button);
           button.textContent = 'Stop Reading';
         }
       },
@@ -911,6 +1014,23 @@
   window.addEventListener("beforeunload", () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
+    }
+  });
+
+  // Cleanup function for page unload
+  function cleanup() {
+    stopReading();
+    delete window.a11yWidget;
+  }
+
+  // Handle page unload/reload
+  window.addEventListener("beforeunload", cleanup);
+  window.addEventListener("unload", cleanup);
+  
+  // Handle visibility change (tab switching/minimizing)
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      stopReading();
     }
   });
 
