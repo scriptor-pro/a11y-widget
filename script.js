@@ -1482,4 +1482,153 @@
     subtree: true
   });
 
+  function fixTouchTargets() {
+    // Minimum sizes (following WCAG guidelines)
+    const MIN_TARGET_SIZE = 44; // pixels
+    const MIN_TARGET_SPACING = 8; // pixels
+    
+    // Query all interactive elements
+    const touchTargets = document.querySelectorAll(`
+      a, button, input, select, textarea,
+      [role="button"],
+      [role="link"],
+      [role="menuitem"],
+      [role="tab"],
+      [role="checkbox"],
+      [role="radio"],
+      [role="switch"],
+      [tabindex="0"]
+    `);
+
+    touchTargets.forEach((target) => {
+      // Skip elements that are part of the accessibility widget
+      if (target.closest('#accessibility-widget')) return;
+
+      const rect = target.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(target);
+      
+      // Store original styles
+      if (!target.hasAttribute('data-original-touch-styles')) {
+        target.setAttribute('data-original-touch-styles', JSON.stringify({
+          padding: computedStyle.padding,
+          margin: computedStyle.margin,
+          minWidth: computedStyle.minWidth,
+          minHeight: computedStyle.minHeight
+        }));
+      }
+
+      // Check if element is too small
+      if (rect.width < MIN_TARGET_SIZE || rect.height < MIN_TARGET_SIZE) {
+        // Calculate required padding
+        const widthDiff = Math.max(0, MIN_TARGET_SIZE - rect.width);
+        const heightDiff = Math.max(0, MIN_TARGET_SIZE - rect.height);
+        
+        // Apply minimum size using padding if needed
+        if (widthDiff > 0) {
+          const horizontalPadding = Math.ceil(widthDiff / 2);
+          target.style.paddingLeft = `${horizontalPadding}px`;
+          target.style.paddingRight = `${horizontalPadding}px`;
+        }
+        
+        if (heightDiff > 0) {
+          const verticalPadding = Math.ceil(heightDiff / 2);
+          target.style.paddingTop = `${verticalPadding}px`;
+          target.style.paddingBottom = `${verticalPadding}px`;
+        }
+
+        // Ensure minimum dimensions
+        target.style.minWidth = `${MIN_TARGET_SIZE}px`;
+        target.style.minHeight = `${MIN_TARGET_SIZE}px`;
+      }
+
+      // Check and fix spacing between targets
+      touchTargets.forEach((otherTarget) => {
+        if (target === otherTarget) return;
+
+        const targetRect = target.getBoundingClientRect();
+        const otherRect = otherTarget.getBoundingClientRect();
+
+        // Calculate spacing between elements
+        const horizontalSpacing = Math.min(
+          Math.abs(targetRect.left - otherRect.right),
+          Math.abs(otherRect.left - targetRect.right)
+        );
+
+        const verticalSpacing = Math.min(
+          Math.abs(targetRect.top - otherRect.bottom),
+          Math.abs(otherRect.top - targetRect.bottom)
+        );
+
+        // Fix insufficient spacing
+        if (horizontalSpacing < MIN_TARGET_SPACING && verticalSpacing < MIN_TARGET_SPACING) {
+          // Add margin to create spacing
+          const currentMargin = parseInt(computedStyle.marginRight) || 0;
+          const newMargin = currentMargin + (MIN_TARGET_SPACING - horizontalSpacing);
+          target.style.marginRight = `${newMargin}px`;
+        }
+      });
+
+      // Special handling for form elements
+      if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA') {
+        target.style.boxSizing = 'border-box';
+        target.style.minWidth = `${MIN_TARGET_SIZE}px`;
+        target.style.minHeight = `${MIN_TARGET_SIZE}px`;
+      }
+    });
+
+    // Add CSS for mobile devices
+    const mobileStyles = document.createElement('style');
+    mobileStyles.innerHTML = `
+      @media (max-width: 768px) {
+        a, button, input[type="button"], input[type="submit"], input[type="reset"],
+        [role="button"], [role="link"], [role="menuitem"], [role="tab"],
+        [role="checkbox"], [role="radio"], [role="switch"], [tabindex="0"] {
+          min-width: ${MIN_TARGET_SIZE}px !important;
+          min-height: ${MIN_TARGET_SIZE}px !important;
+          margin: ${MIN_TARGET_SPACING}px !important;
+        }
+      }
+    `;
+    document.head.appendChild(mobileStyles);
+  }
+
+  // Run the fix immediately
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fixTouchTargets);
+  } else {
+    fixTouchTargets();
+  }
+
+  // Add resize handler to recheck touch targets
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(fixTouchTargets, 250);
+  });
+
+  // Set up observer for dynamically added elements
+  const touchTargetObserver = new MutationObserver((mutations) => {
+    let shouldFix = false;
+    mutations.forEach((mutation) => {
+      if (mutation.addedNodes.length) {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1 && (
+            node.matches('a, button, input, select, textarea, [role="button"], [tabindex="0"]') ||
+            node.querySelector('a, button, input, select, textarea, [role="button"], [tabindex="0"]')
+          )) {
+            shouldFix = true;
+          }
+        });
+      }
+    });
+    if (shouldFix) {
+      fixTouchTargets();
+    }
+  });
+
+  touchTargetObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
 })();
