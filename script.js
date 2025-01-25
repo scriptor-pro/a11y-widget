@@ -936,80 +936,133 @@
     }
   }
 
+  function getTemporaryAltText(img) {
+    // Try to generate meaningful temporary alt text from various sources
+    const fileName = img.src?.split('/')?.pop()?.split('?')[0]?.split('#')[0] || '';
+    const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
+    const cleanName = nameWithoutExt
+      .replace(/[-_]/g, ' ')
+      .replace(/([A-Z])/g, ' $1')
+      .trim()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+
+    // Look for nearby text content
+    const parentText = img.parentElement?.textContent?.trim();
+    const prevSibling = img.previousElementSibling?.textContent?.trim();
+    const nextSibling = img.nextElementSibling?.textContent?.trim();
+    
+    // Try to use the most relevant text source
+    if (cleanName && cleanName.length > 3 && !/^[0-9]+$/.test(cleanName)) {
+      return `Image of ${cleanName}`;
+    } else if (parentText && parentText.length < 100) {
+      return `Image related to: ${parentText}`;
+    } else if (prevSibling && prevSibling.length < 100) {
+      return `Image for: ${prevSibling}`;
+    } else if (nextSibling && nextSibling.length < 100) {
+      return `Image illustrating: ${nextSibling}`;
+    }
+
+    // Size-based description as last resort
+    const width = img.width || img.naturalWidth;
+    const height = img.height || img.naturalHeight;
+    if (width && height) {
+      const size = width > height ? 'Wide' : height > width ? 'Tall' : 'Square';
+      return `${size} image - Loading description...`;
+    }
+
+    return 'Image - Loading description...';
+  }
+
   (async function handleImagesWithoutAlt() {
     try {
       const images = document.querySelectorAll('img:not([alt]), img[alt=""]');
+      const imageProcessingPromises = [];
 
-      for (const img of images) {
-        try {
-          // Skip invalid image sources
-          if (!img.src || img.src === '') continue;
+      // First pass: Set temporary alt text immediately
+      images.forEach((img) => {
+        if (!img.src || img.src === '') return;
+        const tempAlt = getTemporaryAltText(img);
+        img.setAttribute('alt', tempAlt);
+        img.setAttribute('data-temp-alt', 'true');
+      });
 
-          const isExternal = new URL(img.src, location.href).origin !== location.origin;
+      // Second pass: Process images with API
+      images.forEach((img) => {
+        if (!img.src || img.src === '') return;
 
-          if (isExternal) {
-            img.crossOrigin = 'anonymous';
+        const processImage = async () => {
+          try {
+            const isExternal = new URL(img.src, location.href).origin !== location.origin;
+            if (isExternal) {
+              img.crossOrigin = 'anonymous';
+            }
+
+            // Wait for image to load
+            await Promise.race([
+              new Promise((resolve, reject) => {
+                if (img.complete && img.naturalHeight !== 0) {
+                  resolve();
+                } else {
+                  img.onload = resolve;
+                  img.onerror = reject;
+                }
+              }),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Image load timeout')), 5000)
+              )
+            ]);
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+
+            const imageBlob = await new Promise((resolve, reject) =>
+              canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Blob conversion failed'))), 'image/jpeg')
+            );
+
+            const formData = new FormData();
+            formData.append('image', imageBlob, 'image.jpg');
+
+            const response = await fetch('https://a11y-widget.jerit.in/upload', {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const altText = await response.json();
+            
+            // Only update if the current alt text is temporary
+            if (img.hasAttribute('data-temp-alt')) {
+              img.setAttribute('alt', altText['alt']);
+              img.removeAttribute('data-temp-alt');
+            }
+          } catch (error) {
+            console.error(`Error processing image ${img.src}:`, error);
+            // Keep the temporary alt text if API fails
+            if (!img.hasAttribute('alt') || img.getAttribute('alt').includes('Loading description')) {
+              const fallbackAlt = getTemporaryAltText(img).replace('Loading description...', 'Description unavailable');
+              img.setAttribute('alt', fallbackAlt);
+            }
           }
+        };
 
-          // Add timeout to image loading
-          await Promise.race([
-            new Promise((resolve, reject) => {
-              if (img.complete && img.naturalHeight !== 0) {
-                resolve();
-              } else {
-                img.onload = resolve;
-                img.onerror = reject;
-              }
-            }),
-            new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Image load timeout')), 5000)
-            )
-          ]);
+        imageProcessingPromises.push(processImage());
+      });
 
-          // Create a canvas to extract image data
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
+      // Wait for all images to be processed
+      await Promise.allSettled(imageProcessingPromises);
 
-          // Set canvas dimensions to match the image
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
-
-          // Draw the image onto the canvas
-          ctx.drawImage(img, 0, 0);
-
-          // Convert the canvas content to a Blob
-          const imageBlob = await new Promise((resolve, reject) =>
-            canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Blob conversion failed'))), 'image/jpeg')
-          );
-
-          // Create FormData and append the image Blob
-          const formData = new FormData();
-          formData.append('image', imageBlob, 'image.jpg');
-
-          // Send POST request with FormData
-          const response = await fetch('https://a11y-widget.jerit.in/upload', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          // Get alt text from response and set it
-          const altText = await response.json();
-          img.setAttribute('alt', altText['alt']);
-        } catch (error) {
-          console.error(`Error processing image ${img.src}:`, error);
-          // Set a fallback alt text
-          img.setAttribute('alt', 'Image description unavailable');
-        }
-      }
     } catch (error) {
       console.error('Error handling images:', error);
     }
-  }
-  )();
+  })();
 
   window.addEventListener("beforeunload", () => {
     if ('speechSynthesis' in window) {
@@ -1196,6 +1249,235 @@
   });
 
   linkObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  function fixButtonAccessibility() {
+    const buttons = document.querySelectorAll('button:not([aria-label]):not([title]), input[type="button"]:not([aria-label]):not([title]), input[type="submit"]:not([aria-label]):not([title]), input[type="reset"]:not([aria-label]):not([title])');
+    
+    buttons.forEach((button) => {
+      // Skip buttons that are part of the accessibility widget
+      if (button.closest('#accessibility-widget')) return;
+
+      const buttonText = button.textContent?.trim() || '';
+      const buttonValue = button.value?.trim() || '';
+      const buttonImage = button.querySelector('img');
+      const buttonIcon = button.querySelector('i, .icon, [class*="icon-"]');
+
+      // If button has no text content
+      if (!buttonText && !buttonValue) {
+        let accessibleName = '';
+
+        // Check for image alt text
+        if (buttonImage && buttonImage.alt) {
+          accessibleName = buttonImage.alt;
+        }
+        // Check for icon aria-label
+        else if (buttonIcon && buttonIcon.getAttribute('aria-label')) {
+          accessibleName = buttonIcon.getAttribute('aria-label');
+        }
+        // Try to generate name from class names
+        else if (button.className) {
+          const classNames = button.className.split(' ')
+            .filter(cls => cls.includes('btn-') || cls.includes('button-') || cls.includes('-btn'))
+            .map(cls => cls.replace(/(btn-|button-|-btn)/g, ''))
+            .map(cls => cls.replace(/[_-]/g, ' '))
+            .map(cls => cls.replace(/([A-Z])/g, ' $1').trim())
+            .map(cls => cls.charAt(0).toUpperCase() + cls.slice(1).toLowerCase());
+
+          if (classNames.length > 0) {
+            accessibleName = `${classNames[0]} button`;
+          }
+        }
+
+        // If we still don't have a name, try to infer from siblings or context
+        if (!accessibleName) {
+          // Check for adjacent label or heading
+          const prevSibling = button.previousElementSibling;
+          const nextSibling = button.nextElementSibling;
+          if (prevSibling && (prevSibling.tagName === 'LABEL' || /^H[1-6]$/.test(prevSibling.tagName))) {
+            accessibleName = prevSibling.textContent.trim();
+          } else if (nextSibling && (nextSibling.tagName === 'LABEL' || /^H[1-6]$/.test(nextSibling.tagName))) {
+            accessibleName = nextSibling.textContent.trim();
+          }
+        }
+
+        // If we still don't have a name, use a generic one based on position
+        if (!accessibleName) {
+          const buttonIndex = Array.from(document.querySelectorAll('button')).indexOf(button);
+          accessibleName = `Button ${buttonIndex + 1}`;
+        }
+
+        // Apply the accessible name
+        button.setAttribute('aria-label', accessibleName);
+
+        // If it's a completely empty button, add a visually hidden span
+        if (!buttonImage && !buttonIcon && !button.innerHTML.trim()) {
+          const span = document.createElement('span');
+          span.textContent = accessibleName;
+          span.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
+          button.appendChild(span);
+        }
+      }
+
+      // Ensure button is focusable
+      if (!button.getAttribute('tabindex')) {
+        button.setAttribute('tabindex', '0');
+      }
+
+      // Add role="button" for non-button elements that act as buttons
+      if (button.tagName !== 'BUTTON' && !button.getAttribute('role')) {
+        button.setAttribute('role', 'button');
+      }
+    });
+  }
+
+  // Run the fix immediately
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fixButtonAccessibility);
+  } else {
+    fixButtonAccessibility();
+  }
+
+  // Set up observer for dynamically added buttons
+  const buttonObserver = new MutationObserver((mutations) => {
+    let shouldFix = false;
+    mutations.forEach((mutation) => {
+      if (mutation.addedNodes.length) {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeName === 'BUTTON' || 
+              (node.nodeType === 1 && (
+                node.querySelector('button') ||
+                node.querySelector('input[type="button"]') ||
+                node.querySelector('input[type="submit"]') ||
+                node.querySelector('input[type="reset"]')
+              ))
+          ) {
+            shouldFix = true;
+          }
+        });
+      }
+    });
+    if (shouldFix) {
+      fixButtonAccessibility();
+    }
+  });
+
+  buttonObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  function fixIframeAccessibility() {
+    const frames = document.querySelectorAll('frame:not([title]), iframe:not([title])');
+    
+    frames.forEach((frame) => {
+      let frameTitle = '';
+      
+      // Try to get title from various sources
+      try {
+        // Check if frame has a source
+        if (frame.src) {
+          const url = new URL(frame.src);
+          
+          // Try to generate title from URL
+          if (url.pathname !== '/') {
+            frameTitle = url.pathname
+              .split('/')
+              .pop()
+              .replace(/[-_]/g, ' ')
+              .replace(/\.[^/.]+$/, '') // Remove file extension
+              .replace(/([A-Z])/g, ' $1') // Add spaces before capital letters
+              .trim();
+          }
+          
+          // If no pathname, use hostname
+          if (!frameTitle && url.hostname) {
+            frameTitle = url.hostname
+              .replace('www.', '')
+              .replace(/\.[^.]+$/, ''); // Remove TLD
+          }
+          
+          // Capitalize words
+          frameTitle = frameTitle
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+          
+          frameTitle += ' content';
+        }
+        
+        // Check for nearby context
+        if (!frameTitle) {
+          // Look for preceding heading or label
+          const prevElement = frame.previousElementSibling;
+          if (prevElement && (prevElement.matches('h1, h2, h3, h4, h5, h6, label'))) {
+            frameTitle = prevElement.textContent.trim();
+          }
+        }
+        
+        // If still no title, try to get it from the frame's content
+        if (!frameTitle && frame.contentDocument) {
+          const frameDocument = frame.contentDocument;
+          frameTitle = frameDocument.title || 
+                      frameDocument.querySelector('h1')?.textContent ||
+                      frameDocument.querySelector('h2')?.textContent;
+        }
+
+        // Default fallback
+        if (!frameTitle) {
+          const frameIndex = Array.from(document.querySelectorAll('iframe, frame')).indexOf(frame);
+          frameTitle = `Embedded content ${frameIndex + 1}`;
+        }
+
+        // Set the title attribute
+        frame.setAttribute('title', frameTitle);
+        
+        // Also set aria-label for better screen reader support
+        frame.setAttribute('aria-label', frameTitle);
+        
+        // Ensure frame is keyboard accessible if interactive
+        if (frame.contentDocument && 
+            frame.contentDocument.querySelector('button, a, input, select, textarea')) {
+          frame.setAttribute('tabindex', '0');
+        }
+
+      } catch (error) {
+        // Handle cross-origin frames
+        console.warn('Could not access frame content:', error);
+        frame.setAttribute('title', 'External embedded content');
+        frame.setAttribute('aria-label', 'External embedded content');
+      }
+    });
+  }
+
+  // Run the fix immediately
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fixIframeAccessibility);
+  } else {
+    fixIframeAccessibility();
+  }
+
+  // Set up observer for dynamically added frames
+  const frameObserver = new MutationObserver((mutations) => {
+    let shouldFix = false;
+    mutations.forEach((mutation) => {
+      if (mutation.addedNodes.length) {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeName === 'IFRAME' || node.nodeName === 'FRAME' ||
+              (node.nodeType === 1 && node.querySelector('iframe, frame'))) {
+            shouldFix = true;
+          }
+        });
+      }
+    });
+    if (shouldFix) {
+      fixIframeAccessibility();
+    }
+  });
+
+  frameObserver.observe(document.body, {
     childList: true,
     subtree: true
   });
