@@ -1034,4 +1034,170 @@
     }
   });
 
+  function fixHeadingOrder() {
+    const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+    let lastActualLevel = 0;
+    
+    headings.forEach((heading) => {
+      const currentLevel = parseInt(heading.tagName.substring(1));
+      
+      // Skip the first heading
+      if (lastActualLevel === 0) {
+        lastActualLevel = currentLevel;
+        return;
+      }
+      
+      // If heading level skips more than one level
+      if (currentLevel > lastActualLevel + 1) {
+        // Create new element with correct level
+        const newHeading = document.createElement(`h${lastActualLevel + 1}`);
+        newHeading.innerHTML = heading.innerHTML;
+        newHeading.className = heading.className;
+        
+        // Copy all attributes
+        Array.from(heading.attributes).forEach(attr => {
+          if (attr.name !== 'class') {
+            newHeading.setAttribute(attr.name, attr.value);
+          }
+        });
+        
+        // Replace old heading with new one
+        heading.parentNode.replaceChild(newHeading, heading);
+        lastActualLevel = lastActualLevel + 1;
+      } else {
+        lastActualLevel = currentLevel;
+      }
+    });
+  }
+
+  // Call immediately after DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fixHeadingOrder);
+  } else {
+    fixHeadingOrder();
+  }
+
+  // Add observer to handle dynamically added content
+  const observer = new MutationObserver((mutations) => {
+    let shouldFix = false;
+    mutations.forEach((mutation) => {
+      if (mutation.addedNodes.length) {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeName.match(/^H[1-6]$/)) {
+            shouldFix = true;
+          }
+        });
+      }
+    });
+    if (shouldFix) {
+      fixHeadingOrder();
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  function fixLinkNames() {
+    const links = document.querySelectorAll('a');
+    
+    links.forEach((link) => {
+      // Skip links that are part of the accessibility widget
+      if (link.closest('#accessibility-widget')) return;
+      
+      // Check if link has text content
+      const visibleText = link.textContent.trim();
+      
+      // Check if link has aria-label
+      const ariaLabel = link.getAttribute('aria-label');
+      
+      // Check if link has title
+      const title = link.getAttribute('title');
+      
+      // Check if link contains an image
+      const image = link.querySelector('img');
+      const imageAlt = image ? image.getAttribute('alt') : null;
+      
+      // If link has no discernible name
+      if (!visibleText && !ariaLabel && !title && !imageAlt) {
+        // Try to generate a name from the URL
+        let urlText = '';
+        try {
+          const url = new URL(link.href);
+          urlText = url.pathname.split('/').pop().replace(/[-_]/g, ' ').replace(/\.[^/.]+$/, '');
+          if (!urlText) {
+            urlText = url.hostname.replace('www.', '');
+          }
+        } catch (e) {
+          urlText = link.href;
+        }
+        
+        // Clean up the URL text
+        urlText = urlText
+          .replace(/([A-Z])/g, ' $1') // Add spaces before capital letters
+          .replace(/\s+/g, ' ') // Remove extra spaces
+          .trim();
+        
+        // Capitalize first letter of each word
+        urlText = urlText
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+        
+        // Set aria-label if we generated a name
+        if (urlText) {
+          link.setAttribute('aria-label', `Link to ${urlText}`);
+        }
+        
+        // If link is empty (no text or images), add span with generated text
+        if (!link.textContent.trim() && !link.querySelector('img')) {
+          const span = document.createElement('span');
+          span.textContent = urlText;
+          span.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
+          link.appendChild(span);
+        }
+      }
+      
+      // If link contains an image without alt text
+      if (image && (!image.hasAttribute('alt') || !image.getAttribute('alt').trim())) {
+        let imageAltText = '';
+        
+        // Try to generate alt text from parent link's text/aria-label/title
+        imageAltText = visibleText || ariaLabel || title || 'Image';
+        
+        image.setAttribute('alt', imageAltText);
+      }
+    });
+  }
+
+  // Run the fix immediately
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fixLinkNames);
+  } else {
+    fixLinkNames();
+  }
+
+  // Set up observer for dynamically added links
+  const linkObserver = new MutationObserver((mutations) => {
+    let shouldFix = false;
+    mutations.forEach((mutation) => {
+      if (mutation.addedNodes.length) {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeName === 'A' || (node.nodeType === 1 && node.querySelector('a'))) {
+            shouldFix = true;
+          }
+        });
+      }
+    });
+    if (shouldFix) {
+      fixLinkNames();
+    }
+  });
+
+  linkObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
 })();
