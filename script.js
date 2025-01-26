@@ -1,3 +1,4 @@
+// v2.3.1
 (function () {
   const style = document.createElement("style");
   style.innerHTML = `
