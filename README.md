@@ -1,22 +1,29 @@
 # a11y-widget
 
-The **a11y-widget** is a lightweight, customizable accessibility widget built using **vanilla JavaScript** and **CSS**. It provides essential accessibility features such as text size adjustment, color inversion, high contrast mode, and image alt text validation for users. You can easily integrate this widget into any website using a simple CDN link.
+Le script original a été créé par https://jerit.in/ https://github.com/Jerit-Baiju 
 
-## Features
+Le **a11y-widget** est un widget d'accessibilité léger et personnalisable construit en utilisant du Javascript tout simple **vanilla JavaScript** et des feuilles de style **CSS**. 
 
-- **Text Size Control**: Increase or decrease the text size for better readability.
-- **Color Inversion**: Invert colors to make content more readable for users with visual impairments.
-- **High Contrast Mode**: Toggle between normal and high contrast themes for better visibility.
-- **Image Alt Text Checker**: Check whether images on the page have alt text, and report missing alt attributes.
+Il fournit des fonctionnalités d'accessibilité essentielles telles que l'ajustement de la taille du texte, l'inversion des couleurs, le mode haut contraste et la validation du texte alt de l'image pour les utilisateurs. 
+
+Ce widget peut être ajouté à une page/un site web en utilisant un simple lien CDN Jsdeliver.
+
+## Caractéristiques
+
+- Contrôle de la taille du texte** : Augmentez ou réduisez la taille du texte pour une meilleure lisibilité.
+- Inversion des couleurs** : Inversez les couleurs pour rendre le contenu plus lisible pour les utilisateurs souffrant de déficiences visuelles.
+- Mode contraste élevé** : Basculez entre le thème normal et le thème à contraste élevé pour une meilleure visibilité.
+- Vérificateur de texte Alt d'image** : Vérifie si les images de la page ont un texte alt et signale les attributs alt manquants.
 
 ## Installation
 
-You can integrate the widget into any webpage by including the following **JavaScript** snippet. You can either download the script or link to the hosted version.
+Vous pouvez intégrer le widget dans n'importe quelle page web en incluant l'extrait **JavaScript** suivant. Vous pouvez soit télécharger le script, soit créer un lien vers la version hébergée.
 
-### Option 1: Using CDN
+### Option 1 : Utilisation du CDN
 
-Include the following `<script>` tag just before closing the `</body>` tag in your HTML:
+Incluez la balise `<script>` suivante juste avant de fermer la balise `</body>` dans votre HTML :
+
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/jerit-baiju/a11y-widget@latest/script.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/scriptor-pro/a11y-widget/script.js"></script>
 ```
