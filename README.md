@@ -1,6 +1,6 @@
 # a11y-widget
 
-Le script original a été créé par https://jerit.in/ https://github.com/Jerit-Baiju 
+Le script original a été créé par Jerit Baiju -  https://github.com/Jerit-Baiju 
 
 Le **a11y-widget** est un widget d'accessibilité léger et personnalisable construit en utilisant du Javascript tout simple **vanilla JavaScript** et des feuilles de style **CSS**. 
 
