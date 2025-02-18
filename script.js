@@ -270,7 +270,54 @@
   const widget = document.createElement("div");
   widget.id = "accessibility-widget";
   widget.innerHTML = `
-    <h2>Accessibility Options</h2>
+
+ <h2>Préférences d'accessibilité</h2>
+    
+    <div class="widget-section">
+      <div class="widget-section-title">Les réglages du texte </div>
+      <div class="button-group">
+        <button id="increase-text" class="text-controls">Agrandir la taille du texte</button>
+        <button id="decrease-text" class="text-controls">Diminuer la taille du texte</button>
+        <button id="line-height" class="text-controls">Régler la hauteur des lignes</button>
+        <button id="letter-spacing" class="text-controls">Écartement des lettres</button>
+        <button id="dyslexic-font" class="text-controls">Afficher le texte dans une police pour Dyslexiques</button>
+      </div>
+    </div>
+
+    <div class="widget-section">
+      <div class="widget-section-title">Préférences de vue</div>
+      <div class="button-group">
+        <button id="invert-colors" class="visual-controls">Inverser les couleurs</button>
+        <button id="high-contrast" class="visual-controls">Augmenter le contraste</button>
+        <button id="increase-saturation" class="visual-controls">Augmenter la saturation</button>
+        <button id="decrease-saturation" class="visual-controls">Diminuer la saturation</button>
+      </div>
+    </div>
+
+    <div class="widget-section">
+      <div class="widget-section-title">Assistance à la lecture</div>
+      <div class="button-group">
+        <button id="toggle-reading" class="reading-controls">Lire l'écran</button>
+        <button id="summarize" class="reading-controls">Résumer</button>
+        <button id="check-images" class="reading-controls">Check Images</button>
+      </div>
+    </div>
+
+    <div class="widget-section">
+      <div class="widget-section-title">Navigation</div>
+      <div class="button-group">
+        <button id="highlight-links" class="navigation-controls">Afficher les liens</button>
+        <button id="big-cursor" class="navigation-controls">Pointeur Géant</button>
+        <button id="hide-images" class="navigation-controls">Toggle Images</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a> |
+      <a href="https://github.com/Jerit-Baiju/a11y-widget/" target="_blank">Contribute</a>
+    </div>
+    
+<!--    <h2>Accessibility Options</h2>
     
     <div class="widget-section">
       <div class="widget-section-title">Text Adjustments</div>
@@ -314,7 +361,9 @@
     <div class="footer">
       Developed by <a href="https://mariancollege.org" target="_blank">mariancollege.org</a> |
       <a href="https://github.com/Jerit-Baiju/a11y-widget/" target="_blank">Contribute</a>
-    </div>
+    </div> -->
+
+  
   `;
   document.body.appendChild(widget);
 
